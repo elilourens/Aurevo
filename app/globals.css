@@ -780,7 +780,8 @@ a {
 }
 
 .phone-screen {
-  aspect-ratio: 0.36;
+  /* real handset proportions (19.5:9); taller screenshots get cropped */
+  aspect-ratio: 393 / 852;
   background: #080a08;
   border-radius: 40px;
   overflow: hidden;
@@ -788,26 +789,8 @@ a {
 }
 
 .phone-image {
-  display: block;
-  height: auto;
-  object-fit: contain;
-  width: 100%;
-}
-
-.phone-home .phone-screen {
-  aspect-ratio: 318 / 886;
-}
-
-.phone-progress .phone-screen {
-  aspect-ratio: 302 / 853;
-}
-
-.phone-sessions .phone-screen {
-  aspect-ratio: 357 / 846;
-}
-
-.phone-club .phone-screen {
-  aspect-ratio: 264 / 810;
+  object-fit: cover;
+  object-position: top center;
 }
 
 .app-overview {
@@ -821,7 +804,7 @@ a {
   display: grid;
   gap: 8vw;
   grid-template-columns: 0.95fr 1.05fr;
-  min-height: 1080px;
+  min-height: 960px;
   overflow: hidden;
 }
 
@@ -873,7 +856,7 @@ a {
   align-items: center;
   display: flex;
   justify-content: center;
-  min-height: 880px;
+  min-height: 800px;
   position: relative;
 }
 
@@ -1046,7 +1029,7 @@ a {
 .session-device {
   align-items: center;
   display: flex;
-  min-height: 900px;
+  min-height: 820px;
   position: relative;
 }
 
@@ -1311,6 +1294,7 @@ a {
   display: grid;
   gap: 9vw;
   grid-template-columns: .85fr 1.15fr;
+  overflow: hidden;
 }
 
 .club-copy {
@@ -1323,7 +1307,7 @@ a {
   align-items: center;
   display: flex;
   justify-content: center;
-  min-height: 900px;
+  min-height: 820px;
   position: relative;
 }
 
@@ -1792,7 +1776,7 @@ footer > a:last-child {
   }
 
   .overview-device {
-    min-height: 850px;
+    min-height: 780px;
     order: 1;
   }
 
@@ -1811,7 +1795,7 @@ footer > a:last-child {
   }
 
   .session-device {
-    min-height: 850px;
+    min-height: 780px;
     order: 1;
   }
 
@@ -1841,7 +1825,7 @@ footer > a:last-child {
   }
 
   .club-device {
-    min-height: 850px;
+    min-height: 780px;
   }
 
   .versus {
@@ -1912,7 +1896,7 @@ footer > a:last-child {
   .club h2,
   .always h2,
   .final-cta h2 {
-    font-size: 50px;
+    font-size: clamp(38px, 13.5vw, 50px);
   }
 
   .manifesto p,
@@ -1968,7 +1952,7 @@ footer > a:last-child {
   }
 
   .overview-device {
-    min-height: 750px;
+    min-height: 700px;
   }
 
   .phone-frame,
@@ -2020,7 +2004,7 @@ footer > a:last-child {
   }
 
   .screen-copy h3 {
-    font-size: 40px;
+    font-size: clamp(31px, 11vw, 40px);
   }
 
   .screen-copy > div > p {
@@ -2040,12 +2024,12 @@ footer > a:last-child {
   }
 
   .session-device {
-    min-height: 700px;
+    min-height: 660px;
   }
 
   .session-device::before {
-    height: 470px;
-    width: 470px;
+    height: 440px;
+    width: 440px;
   }
 
   .session-orbit-label {
@@ -2086,12 +2070,12 @@ footer > a:last-child {
   }
 
   .club-device {
-    min-height: 760px;
+    min-height: 700px;
   }
 
   .club-device::before {
-    height: 480px;
-    width: 480px;
+    height: 440px;
+    width: 440px;
   }
 
   .club-card {
@@ -2099,13 +2083,13 @@ footer > a:last-child {
   }
 
   .club-card-one {
-    left: -6px;
+    left: 0;
     top: 28%;
   }
 
   .club-card-two {
     bottom: 24%;
-    right: -6px;
+    right: 0;
   }
 
   .versus {
@@ -2121,7 +2105,7 @@ footer > a:last-child {
   }
 
   .always h2 {
-    font-size: 55px;
+    font-size: clamp(42px, 15vw, 55px);
   }
 
   .sport-list {
@@ -2136,7 +2120,7 @@ footer > a:last-child {
   }
 
   .final-cta h2 {
-    font-size: 58px;
+    font-size: clamp(42px, 15.5vw, 58px);
   }
 
   .waitlist-form {

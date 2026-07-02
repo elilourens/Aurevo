@@ -19,13 +19,6 @@ const metrics = [
   { label: "Control", value: "87", unit: "%", delta: "+12%" },
 ];
 
-const screenDimensions: Record<string, { width: number; height: number }> = {
-  "/ui-home.png": { width: 318, height: 886 },
-  "/ui-progress.png": { width: 302, height: 853 },
-  "/ui-sessions.png": { width: 357, height: 846 },
-  "/ui-club.png": { width: 264, height: 810 },
-};
-
 function Arrow({ down = false }: { down?: boolean }) {
   return (
     <svg
@@ -76,15 +69,13 @@ function PhoneFrame({
   src,
   alt,
   className = "",
-  priority = false,
+  preload = false,
 }: {
   src: string;
   alt: string;
   className?: string;
-  priority?: boolean;
+  preload?: boolean;
 }) {
-  const dimensions = screenDimensions[src] ?? { width: 360, height: 844 };
-
   return (
     <motion.div
       className={`phone-frame ${className}`}
@@ -100,10 +91,9 @@ function PhoneFrame({
         <Image
           src={src}
           alt={alt}
-          width={dimensions.width}
-          height={dimensions.height}
-          priority={priority}
-          sizes="(max-width: 700px) 78vw, 360px"
+          fill
+          preload={preload}
+          sizes="(max-width: 700px) 86vw, 340px"
           className="phone-image"
         />
       </div>
@@ -346,9 +336,13 @@ export default function Home() {
               <span>We measure the strike.</span>
             </h2>
             <p>
-              Every hit sends a rich vibration through the handle—contact,
-              intent, control. Until now, that signal disappeared after every
-              rally.
+              Racket sports have always been measured by the outcome, not the
+              performance. Each strike sends a vibration through the handle,
+              carrying details you can feel but never see. Until now, that
+              signal has vanished after every rally, with wearables treating a
+              two-hour match like a jog, counting steps while missing how well
+              you hit the ball. Meet Aurevo, the lightweight smart bracelet
+              that attaches to the racket handle.
             </p>
           </Reveal>
           <div className="signal-line" aria-hidden="true">
@@ -366,8 +360,9 @@ export default function Home() {
               <span className="section-number light">02 / ONE POD. TWO WORLDS.</span>
               <h2>Always with you.</h2>
               <p>
-                Wear Aurevo for 24/7 body insight. When it&apos;s time to play,
-                clip the same lightweight pod to your racket in seconds.
+                Aurevo brings 24/7 body insights, then asks why they should
+                stop there. When the same pod clips to the handle, Aurevo
+                measures the shot, not the arm.
               </p>
             </Reveal>
             <Reveal className="mode-list" delay={0.1}>
@@ -394,8 +389,10 @@ export default function Home() {
               <span className="section-number">03 / DIRECT FROM THE HANDLE</span>
               <h2>See the shot behind the score.</h2>
               <p>
-                Contact quality. Power versus control. Even a map of where the
-                ball met the racket. Aurevo captures the impact at its source.
+                Capturing the direct impact signal a wrist can only extrapolate
+                from, it unlocks sport-specific insight, from contact quality
+                and power versus control to previously unreachable cinematics
+                like a 3D map of where the ball struck the racket.
               </p>
             </Reveal>
             <Reveal className="metric-strip" delay={0.12}>
@@ -446,7 +443,7 @@ export default function Home() {
               src="/ui-home.png"
               alt="Aurevo home screen showing player attributes, last tennis match, activity and sleep insights"
               className="phone-home"
-              priority
+              preload
             />
             <span className="device-note note-one">Health context</span>
             <span className="device-note note-two">Live game profile</span>
@@ -461,8 +458,8 @@ export default function Home() {
             </Reveal>
             <Reveal delay={0.08}>
               <p>
-                Health and racket data become one evolving view of your game,
-                showing what changed and what to work on next.
+                Every session compounds, fusing health and racket data, showing
+                what to work on next.
               </p>
             </Reveal>
           </div>
@@ -524,15 +521,18 @@ export default function Home() {
               <span className="section-number">07 / YOUR GAME, IN CONTEXT</span>
               <h2>Win the match. Know why.</h2>
               <p>
-                Add friends, build rivalries and let your rating move with real
-                performance—not self-reported scores.
+                Add friends, build rivalries and let your player rating move
+                with real performance rather than self-reported scores. Face
+                one of them and you both get the breakdown of not just who won,
+                but why.
               </p>
             </Reveal>
             <Reveal className="pro-note" delay={0.12}>
               <span>COMING NEXT</span>
               <p>
-                We&apos;re putting Aurevo on the pros, so your forehand can
-                finally meet its benchmark.
+                We&apos;ll put the same pod on the pros too, so you can finally
+                see how your forehand stacks up against the players you grew up
+                watching.
               </p>
             </Reveal>
           </div>
@@ -582,8 +582,9 @@ export default function Home() {
             <span className="section-number">THE QUANTIFIED ERA OF SPORT</span>
             <h2>Be first into the game.</h2>
             <p>
-              Join the Aurevo waitlist for early access, product drops and a
-              place in our founding club.
+              Sport is still waiting for its quantified layer. Aurevo is built
+              to define it. Join the waitlist and be first into the new era of
+              measured competition.
             </p>
             <Waitlist />
             <small>No spam. Just the signal.</small>
