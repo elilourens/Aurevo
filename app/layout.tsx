@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aurevo",
-  description: "Aurevo landing page",
+  title: "Aurevo — The New Measure of Play",
+  description:
+    "Aurevo turns every strike into sport-specific insight. One lightweight pod for body, racket and the complete picture of your game.",
 };
 
 export default function RootLayout({
