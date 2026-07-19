@@ -1,6 +1,6 @@
 import { chromium } from "playwright";
 
-const SCRATCH = "/tmp/claude-1000/-home-eli-Aurevo/c6514359-c846-41c5-96cf-b4b76635d0dc/scratchpad";
+const SCRATCH = process.env.SCRATCH ?? "/tmp";
 const results = [];
 const ok = (name, cond, detail = "") => {
   results.push(`${cond ? "PASS" : "FAIL"}: ${name} ${detail}`);
@@ -48,7 +48,7 @@ ok("video ready (readyState>=3)", state.readyState >= 3, `(${state.readyState})`
 ok("video playing (not paused)", !state.paused);
 ok("video muted", state.muted);
 ok("video loop enabled", state.loop);
-ok("duration ~61s", Math.abs(state.duration - 61.23) < 1, `(${state.duration.toFixed(2)}s)`);
+ok("duration ~21.8s (tennis + sunset cut)", Math.abs(state.duration - 21.76) < 1, `(${state.duration.toFixed(2)}s)`);
 ok("resolution 1920x1080", state.videoWidth === 1920 && state.videoHeight === 1080, `(${state.videoWidth}x${state.videoHeight})`);
 
 // playback advances
@@ -58,10 +58,11 @@ const t2 = await page.evaluate(() => document.querySelector('[data-testid="hero-
 ok("playback advances", t2 > t1, `(${t1.toFixed(2)} -> ${t2.toFixed(2)})`);
 
 // hero text visible
-ok("headline visible", await page.locator("h1", { hasText: "Aurevo" }).isVisible());
+ok("headline visible", await page.locator("h1", { hasText: "Every strike" }).isVisible());
+ok("subheading names the product", await page.locator(".hero-content p", { hasText: "Meet Aurevo" }).isVisible());
 
-// screenshot each segment by seeking
-const seeks = [5, 20, 33, 45];
+// screenshot each segment by seeking (tennis ~0-15.1s, sunset ~15.1-21.8s)
+const seeks = [5, 18];
 for (const t of seeks) {
   await page.evaluate((tt) => {
     const v = document.querySelector('[data-testid="hero-video"]');

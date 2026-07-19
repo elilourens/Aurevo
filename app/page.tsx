@@ -8,8 +8,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import Image from "next/image";
-import { FormEvent, useRef, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -18,6 +17,86 @@ const metrics = [
   { label: "Power", value: "112", unit: "km/h", delta: "+6%" },
   { label: "Control", value: "87", unit: "%", delta: "+12%" },
 ];
+
+// live HTML mockups shown inside the phone; width = each file's design width
+const appScreens = [
+  {
+    file: "/app-ui/home.html",
+    width: 642,
+    label: "Today",
+    blurb: "Health context beside your live game profile. Know when to push and when to recover.",
+    title: "Aurevo home screen",
+  },
+  {
+    file: "/app-ui/progress.html",
+    width: 393,
+    label: "Progress",
+    blurb: "Every session teaches the next. See what's changing—not just what happened.",
+    title: "Aurevo progress screen",
+  },
+  {
+    file: "/app-ui/sport.html",
+    width: 393,
+    label: "Your sport",
+    blurb: "Go deep on one sport—win rate, controlled power and a sweet-spot map of where you strike.",
+    title: "Aurevo tennis screen",
+  },
+  {
+    file: "/app-ui/sessions.html",
+    width: 410,
+    label: "Sessions",
+    blurb: "A season you can read. Every match searchable by sport, score and intensity.",
+    title: "Aurevo sessions screen",
+  },
+  {
+    file: "/app-ui/club.html",
+    width: 410,
+    label: "Club",
+    blurb: "Win the match, know why. Rivalries and a rating that moves on measured performance.",
+    title: "Aurevo club screen",
+  },
+];
+
+// pre-baked impact cluster around the sweet spot, so the heatmap reads instantly
+// (14 of 19 inside the sweet zone -> 74% hits, matching the app UI)
+const seedImpacts = [
+  { x: 48, y: 44 }, { x: 52, y: 46 }, { x: 50, y: 48 }, { x: 49, y: 45 },
+  { x: 51, y: 49 }, { x: 47, y: 47 }, { x: 53, y: 44 }, { x: 50, y: 43 },
+  { x: 52, y: 50 }, { x: 46, y: 45 }, { x: 54, y: 47 }, { x: 49, y: 50 },
+  { x: 51, y: 45 }, { x: 48, y: 49 },
+  { x: 35, y: 62 }, { x: 64, y: 35 }, { x: 60, y: 64 }, { x: 38, y: 32 },
+  { x: 66, y: 58 },
+];
+
+const SWEET_CENTER = { x: 50, y: 47 };
+const SWEET_RADIUS = 16;
+
+// thermal colormap stops: [t, r, g, b, alpha]
+const heatStops: Array<[number, number, number, number, number]> = [
+  [0.0, 40, 90, 200, 0],
+  [0.18, 45, 100, 210, 95],
+  [0.35, 60, 175, 145, 150],
+  [0.52, 140, 205, 70, 190],
+  [0.68, 235, 220, 70, 220],
+  [0.84, 245, 150, 45, 240],
+  [1.0, 232, 58, 30, 255],
+];
+
+const heatLut = (() => {
+  const lut = new Uint8ClampedArray(256 * 4);
+  for (let i = 0; i < 256; i++) {
+    const t = i / 255;
+    let j = 1;
+    while (j < heatStops.length - 1 && heatStops[j][0] < t) j++;
+    const a = heatStops[j - 1];
+    const b = heatStops[j];
+    const f = (t - a[0]) / (b[0] - a[0]);
+    for (let c = 0; c < 4; c++) {
+      lut[i * 4 + c] = a[c + 1] + (b[c + 1] - a[c + 1]) * f;
+    }
+  }
+  return lut;
+})();
 
 function Arrow({ down = false }: { down?: boolean }) {
   return (
@@ -65,99 +144,100 @@ function Reveal({
   );
 }
 
-function PhoneFrame({
-  src,
-  alt,
-  className = "",
-  preload = false,
-}: {
-  src: string;
-  alt: string;
-  className?: string;
-  preload?: boolean;
-}) {
-  return (
-    <motion.div
-      className={`phone-frame ${className}`}
-      initial={{ opacity: 0, y: 40, rotate: -1.5 }}
-      whileInView={{ opacity: 1, y: 0, rotate: 0 }}
-      viewport={{ once: true, amount: 0.2 }}
-      transition={{ duration: 0.9, ease }}
-    >
-      <div className="phone-hardware" aria-hidden="true">
-        <span />
-      </div>
-      <div className="phone-screen">
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          preload={preload}
-          sizes="(max-width: 700px) 86vw, 340px"
-          className="phone-image"
-        />
-      </div>
-    </motion.div>
-  );
-}
+function SweetSpot() {
+  const [points, setPoints] = useState(seedImpacts);
+  const lastRef = useRef({ x: 51, y: 45 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-function ImpactMap() {
-  const [point, setPoint] = useState({ x: 54, y: 46 });
-
-  function updatePoint(event: React.PointerEvent<HTMLDivElement>) {
+  function addPoint(event: React.PointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
-    setPoint({
-      x: Math.min(86, Math.max(14, ((event.clientX - rect.left) / rect.width) * 100)),
-      y: Math.min(86, Math.max(14, ((event.clientY - rect.top) / rect.height) * 100)),
-    });
+    const x = Math.min(90, Math.max(10, ((event.clientX - rect.left) / rect.width) * 100));
+    const y = Math.min(90, Math.max(10, ((event.clientY - rect.top) / rect.height) * 100));
+    if (Math.hypot(x - lastRef.current.x, y - lastRef.current.y) < 3) return;
+    lastRef.current = { x, y };
+    setPoints((prev) => [...prev.slice(-79), { x, y }]);
   }
 
-  const quality = Math.round(
-    98 - Math.hypot(point.x - 50, point.y - 48) * 0.85,
-  );
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const draw = () => {
+      const rect = canvas.getBoundingClientRect();
+      const w = Math.max(1, Math.round(rect.width));
+      const h = Math.max(1, Math.round(rect.height));
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, w, h);
+      // density pass: stack translucent blobs, then map density through the thermal LUT
+      const radius = w * 0.3;
+      for (const point of points) {
+        const px = (point.x / 100) * w;
+        const py = (point.y / 100) * h;
+        const grad = ctx.createRadialGradient(px, py, 0, px, py, radius);
+        grad.addColorStop(0, "rgba(0,0,0,0.26)");
+        grad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = grad;
+        ctx.fillRect(px - radius, py - radius, radius * 2, radius * 2);
+      }
+      const img = ctx.getImageData(0, 0, w, h);
+      const d = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const idx = d[i + 3] * 4;
+        d[i] = heatLut[idx];
+        d[i + 1] = heatLut[idx + 1];
+        d[i + 2] = heatLut[idx + 2];
+        d[i + 3] = heatLut[idx + 3];
+      }
+      ctx.putImageData(img, 0, 0);
+    };
+
+    draw();
+    const observer = new ResizeObserver(draw);
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [points]);
+
+  const hits = points.filter(
+    (p) => Math.hypot(p.x - SWEET_CENTER.x, p.y - SWEET_CENTER.y) <= SWEET_RADIUS,
+  ).length;
+  const pct = Math.round((hits / points.length) * 100);
 
   return (
-    <div className="impact-card">
-      <div className="impact-card-top">
-        <div>
-          <span className="eyebrow dark">LIVE IMPACT</span>
-          <p>Forehand · 00:42</p>
+    <div className="sweet-card">
+      <div className="sweet-head">
+        <span>SWEET SPOT</span>
+        <em>· where you strike</em>
+      </div>
+      <div className="sweet-body">
+        <div
+          className="racket-oval"
+          onPointerMove={addPoint}
+          onPointerDown={addPoint}
+          role="img"
+          aria-label="Interactive heatmap of where the ball strikes the racket"
+        >
+          <div className="racket-strings" />
+          <canvas ref={canvasRef} className="heat-canvas" />
         </div>
-        <span className="live-dot">Recording</span>
-      </div>
-      <div
-        className="racket-face"
-        onPointerMove={updatePoint}
-        onPointerDown={updatePoint}
-        role="img"
-        aria-label="Interactive racket impact map"
-      >
-        <div className="racket-grid" />
-        <motion.div
-          className="impact-ripple impact-ripple-large"
-          animate={{ left: `${point.x}%`, top: `${point.y}%` }}
-          transition={{ type: "spring", stiffness: 240, damping: 24 }}
-        />
-        <motion.div
-          className="impact-ripple"
-          animate={{ left: `${point.x}%`, top: `${point.y}%` }}
-          transition={{ type: "spring", stiffness: 280, damping: 22 }}
-        />
-        <motion.div
-          className="impact-point"
-          animate={{ left: `${point.x}%`, top: `${point.y}%` }}
-          transition={{ type: "spring", stiffness: 300, damping: 22 }}
-        />
-        <span className="impact-hint">Move across the strings</span>
-      </div>
-      <div className="impact-result">
-        <span>Contact quality</span>
-        <strong>{quality}</strong>
-        <small>/100</small>
-        <div className="quality-track">
-          <motion.i animate={{ width: `${quality}%` }} />
+        <div className="sweet-stats">
+          <span className="sweet-label">Sweet-spot hits</span>
+          <div className="sweet-big">
+            <strong>{pct}</strong>
+            <small>%</small>
+            <i>↑ from 68</i>
+          </div>
+          <div className="sweet-divider" />
+          <span className="sweet-label">Clean by wing</span>
+          <div className="wing-row">
+            <span>FH <b className="fh">81%</b></span>
+            <span>BH <b className="bh">67%</b></span>
+          </div>
         </div>
       </div>
+      <span className="sweet-hint">Move across the strings</span>
     </div>
   );
 }
@@ -186,6 +266,96 @@ function PodVisual() {
   );
 }
 
+function AppTour() {
+  const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [screenWidth, setScreenWidth] = useState(324);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(stageRef, { margin: "-20% 0px" });
+
+  useEffect(() => {
+    if (!inView || paused) return;
+    const id = setInterval(
+      () => setActive((current) => (current + 1) % appScreens.length),
+      4200,
+    );
+    return () => clearInterval(id);
+  }, [inView, paused, active]);
+
+  // the mockups are fixed-width pages; scale each iframe to the phone screen
+  useEffect(() => {
+    const el = screenRef.current;
+    if (!el) return;
+    const measure = () => setScreenWidth(el.clientWidth);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="app-tour" ref={stageRef}>
+      <div className="app-tabs" role="tablist" aria-label="App screens">
+        {appScreens.map((screen, index) => (
+          <button
+            key={screen.label}
+            type="button"
+            role="tab"
+            aria-selected={index === active}
+            className={index === active ? "app-tab is-active" : "app-tab"}
+            onClick={() => setActive(index)}
+          >
+            <span>0{index + 1}</span>
+            <div>
+              <strong>{screen.label}</strong>
+              <p>{screen.blurb}</p>
+            </div>
+            {index === active && !paused && (
+              <i className="tab-progress" key={active} />
+            )}
+          </button>
+        ))}
+      </div>
+      <div
+        className="tour-device"
+        onPointerEnter={() => setPaused(true)}
+        onPointerLeave={() => setPaused(false)}
+      >
+        <div className="device-glow" aria-hidden="true" />
+        <div className="phone-frame">
+          <div className="phone-hardware" aria-hidden="true">
+            <span />
+          </div>
+          <div className="phone-screen" ref={screenRef}>
+            {appScreens.map((screen, index) => (
+              <motion.div
+                key={screen.file}
+                className="tour-screen"
+                initial={false}
+                animate={{ opacity: index === active ? 1 : 0 }}
+                transition={{ duration: 0.55, ease }}
+                style={{ pointerEvents: index === active ? "auto" : "none" }}
+              >
+                <iframe
+                  src={screen.file}
+                  title={screen.title}
+                  className="tour-iframe"
+                  style={{
+                    width: screen.width,
+                    height: (screen.width * 852) / 393,
+                    transform: `scale(${screenWidth / screen.width})`,
+                  }}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function Waitlist() {
   const [joined, setJoined] = useState(false);
 
@@ -193,8 +363,12 @@ function Waitlist() {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") || "");
+    const note = String(form.get("note") || "");
     if (email) {
       window.localStorage.setItem("aurevo-waitlist-email", email);
+      if (note) {
+        window.localStorage.setItem("aurevo-waitlist-note", note);
+      }
       setJoined(true);
     }
   }
@@ -211,21 +385,32 @@ function Waitlist() {
         </motion.p>
       ) : (
         <>
-          <label className="sr-only" htmlFor="email">
-            Email address
+          <label className="sr-only" htmlFor="note">
+            What should Aurevo measure first?
           </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            autoComplete="email"
-            placeholder="Email address"
+          <textarea
+            id="note"
+            name="note"
+            rows={3}
+            placeholder="What should Aurevo measure first? (optional)"
           />
-          <button type="submit">
-            Join the waitlist
-            <Arrow />
-          </button>
+          <div className="waitlist-row">
+            <label className="sr-only" htmlFor="email">
+              Email address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              placeholder="Email address"
+            />
+            <button type="submit">
+              Join the waitlist
+              <Arrow />
+            </button>
+          </div>
         </>
       )}
     </form>
@@ -257,8 +442,8 @@ export default function Home() {
           </a>
           <div className="nav-links">
             <a href="#technology">Technology</a>
-            <a href="#progress">Progress</a>
-            <a href="#club">Club</a>
+            <a href="#data">Data</a>
+            <a href="#app">App</a>
           </div>
           <a className="nav-cta" href="#waitlist">
             Join waitlist
@@ -295,17 +480,17 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.25, ease }}
             >
-              Feel it.
+              Every strike.
               <br />
-              Now <em>see it.</em>
+              <em>Measured.</em>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.45, ease }}
             >
-              The smart pod that turns every strike into a clearer way to
-              improve.
+              Meet Aurevo, a lightweight smart bracelet with a pod that
+              attaches to the racket handle.
             </motion.p>
             <motion.a
               className="primary-cta"
@@ -327,7 +512,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="manifesto section-pad" id="problem">
+        <section className="manifesto" id="problem">
           <Reveal className="manifesto-inner">
             <span className="section-number">01 / THE SIGNAL</span>
             <h2>
@@ -337,12 +522,9 @@ export default function Home() {
             </h2>
             <p>
               Racket sports have always been measured by the outcome, not the
-              performance. Each strike sends a vibration through the handle,
-              carrying details you can feel but never see. Until now, that
-              signal has vanished after every rally, with wearables treating a
-              two-hour match like a jog, counting steps while missing how well
-              you hit the ball. Meet Aurevo, the lightweight smart bracelet
-              that attaches to the racket handle.
+              performance. Each strike sends a vibration through the handle
+              carrying details you can feel but never see—while a wrist
+              wearable treats a two-hour match like a jog.
             </p>
           </Reveal>
           <div className="signal-line" aria-hidden="true">
@@ -360,22 +542,38 @@ export default function Home() {
               <span className="section-number light">02 / ONE POD. TWO WORLDS.</span>
               <h2>Always with you.</h2>
               <p>
-                Aurevo brings 24/7 body insights, then asks why they should
-                stop there. When the same pod clips to the handle, Aurevo
-                measures the shot, not the arm.
+                Racket sensors already exist, but they go unused—another thing
+                to remember, and only built for one sport. Aurevo is already on
+                your wrist when the group chat turns into a game. In seconds,
+                the pod moves from wrist to racket and measures the shot, not
+                the arm.
               </p>
             </Reveal>
             <Reveal className="mode-list" delay={0.1}>
               <div>
                 <span>01</span>
-                <strong>BODY</strong>
-                <p>Recovery, movement and the context behind your game.</p>
+                <strong>NO WATCH</strong>
+                <p>24/7 body insight without a screen strapped to your wrist.</p>
               </div>
               <div>
                 <span>02</span>
-                <strong>RACKET</strong>
-                <p>Direct impact data your wrist can only estimate.</p>
+                <strong>ONE APP</strong>
+                <p>Tennis, padel and pickleball in one place—not an app per sport.</p>
               </div>
+              <div>
+                <span>03</span>
+                <strong>THE HANDLE</strong>
+                <p>Direct impact data from the racket itself, not estimates extrapolated from your arm.</p>
+              </div>
+            </Reveal>
+            <Reveal className="sport-list" delay={0.16}>
+              <span>TENNIS</span>
+              <i />
+              <span>PADEL</span>
+              <i />
+              <span>PICKLEBALL</span>
+              <i />
+              <span>MORE TO COME</span>
             </Reveal>
           </div>
           <Reveal className="dual-visual" delay={0.1}>
@@ -383,16 +581,16 @@ export default function Home() {
           </Reveal>
         </section>
 
-        <section className="measurement section-pad">
+        <section className="measurement section-pad" id="data">
           <div className="measurement-copy">
             <Reveal>
               <span className="section-number">03 / DIRECT FROM THE HANDLE</span>
               <h2>See the shot behind the score.</h2>
               <p>
                 Capturing the direct impact signal a wrist can only extrapolate
-                from, it unlocks sport-specific insight, from contact quality
-                and power versus control to previously unreachable cinematics
-                like a 3D map of where the ball struck the racket.
+                from, Aurevo unlocks sport-specific metrics—contact quality,
+                power versus control, and previously unreachable views like a
+                map of where the ball struck the racket.
               </p>
             </Reveal>
             <Reveal className="metric-strip" delay={0.12}>
@@ -407,172 +605,32 @@ export default function Home() {
             </Reveal>
           </div>
           <Reveal className="measurement-visual" delay={0.08}>
-            <ImpactMap />
+            <SweetSpot />
           </Reveal>
         </section>
 
         <section className="app-overview section-pad" id="app">
-          <div className="app-overview-copy">
+          <div className="app-overview-head">
             <Reveal>
               <span className="section-number light">04 / THE COMPLETE PICTURE</span>
-              <h2>Body and racket. Finally in one view.</h2>
-              <p>
-                Sleep, activity and recovery sit beside the details of your
-                latest match. Aurevo connects how you arrived on court with how
-                you performed once you got there.
-              </p>
-            </Reveal>
-            <Reveal className="overview-points" delay={0.1}>
-              <div>
-                <span>01</span>
-                <p><b>Ready to play</b>Know when to push and when to recover.</p>
-              </div>
-              <div>
-                <span>02</span>
-                <p><b>Made for action</b>Start a session in a single tap.</p>
-              </div>
-              <div>
-                <span>03</span>
-                <p><b>Built to compound</b>Every hit sharpens what comes next.</p>
-              </div>
-            </Reveal>
-          </div>
-          <div className="overview-device">
-            <div className="device-glow" aria-hidden="true" />
-            <PhoneFrame
-              src="/ui-home.png"
-              alt="Aurevo home screen showing player attributes, last tennis match, activity and sleep insights"
-              className="phone-home"
-              preload
-            />
-            <span className="device-note note-one">Health context</span>
-            <span className="device-note note-two">Live game profile</span>
-          </div>
-        </section>
-
-        <section className="progress section-pad" id="progress">
-          <div className="progress-head">
-            <Reveal>
-              <span className="section-number light">05 / PROGRESS THAT COMPOUNDS</span>
-              <h2>Every session teaches the next.</h2>
+              <h2>Body and racket. One app.</h2>
             </Reveal>
             <Reveal delay={0.08}>
               <p>
-                Every session compounds, fusing health and racket data, showing
+                Sleep, activity and recovery sit beside every match you play.
+                Every session compounds, fusing health and racket data to show
                 what to work on next.
               </p>
             </Reveal>
           </div>
-          <div className="screen-feature">
-            <div className="screen-copy">
-              <Reveal>
-                <span className="screen-kicker">Your trajectory</span>
-                <h3>See what&apos;s changing—not just what happened.</h3>
-                <p>
-                  Follow session quality, shot volume and win rate across every
-                  racket sport. Aurevo surfaces the weakest link and the
-                  momentum worth carrying forward.
-                </p>
-              </Reveal>
-              <Reveal className="feature-stat-row" delay={0.08}>
-                <div><strong>+14%</strong><span>shots</span></div>
-                <div><strong>+9%</strong><span>court time</span></div>
-                <div><strong>+5%</strong><span>win rate</span></div>
-              </Reveal>
-            </div>
-            <div className="screen-device progress-device">
-              <PhoneFrame
-                src="/ui-progress.png"
-                alt="Aurevo progress screen showing session quality, sport trends and areas to improve"
-                className="phone-progress"
-              />
-            </div>
-          </div>
-        </section>
-
-        <section className="session-library section-pad" id="sessions">
-          <div className="session-device">
-            <PhoneFrame
-              src="/ui-sessions.png"
-              alt="Aurevo sessions screen showing tennis, padel and pickleball session summaries"
-              className="phone-sessions"
-            />
-            <span className="session-orbit-label">Every session, searchable</span>
-          </div>
-          <div className="session-library-copy">
-            <Reveal>
-              <span className="section-number">06 / YOUR PLAYING HISTORY</span>
-              <h2>A season you can read.</h2>
-              <p>
-                No more matches disappearing into memory. Filter every session
-                by sport and revisit intensity, shot count, score and peak
-                speed—then open the detail behind the result.
-              </p>
-            </Reveal>
-            <Reveal className="session-tags" delay={0.1}>
-              <span>Tennis</span><span>Padel</span><span>Pickleball</span>
-            </Reveal>
-          </div>
-        </section>
-
-        <section className="club section-pad" id="club">
-          <div className="club-copy">
-            <Reveal>
-              <span className="section-number">07 / YOUR GAME, IN CONTEXT</span>
-              <h2>Win the match. Know why.</h2>
-              <p>
-                Add friends, build rivalries and let your player rating move
-                with real performance rather than self-reported scores. Face
-                one of them and you both get the breakdown of not just who won,
-                but why.
-              </p>
-            </Reveal>
-            <Reveal className="pro-note" delay={0.12}>
-              <span>COMING NEXT</span>
-              <p>
-                We&apos;ll put the same pod on the pros too, so you can finally
-                see how your forehand stacks up against the players you grew up
-                watching.
-              </p>
-            </Reveal>
-          </div>
-          <div className="club-device">
-            <div className="club-card club-card-one">
-              <span>RIVALRY</span><strong>8–5</strong><small>peak swing 112 vs 104</small>
-            </div>
-            <PhoneFrame
-              src="/ui-club.png"
-              alt="Aurevo Club screen showing player rating, upcoming matches, rivalry and friends"
-              className="phone-club"
-            />
-            <div className="club-card club-card-two">
-              <span>NEXT UP</span><strong>Saturday</strong><small>you &amp; Sam vs Adam &amp; Leo</small>
-            </div>
-          </div>
-        </section>
-
-        <section className="always section-pad">
-          <div className="always-orbit" aria-hidden="true" />
-          <Reveal className="always-inner">
-            <span className="section-number light">08 / READY WHEN YOU ARE</span>
-            <h2>
-              No special kit.
-              <br />
-              No second thought.
-            </h2>
+          <AppTour />
+          <Reveal className="pro-note" delay={0.1}>
+            <span>COMING NEXT</span>
             <p>
-              Aesthetic, multi-sport and attached in seconds. Aurevo is already
-              with you when the group chat turns into a game.
+              We&apos;ll put the same pod on the pros too, so you can finally
+              see how your forehand stacks up against the players you grew up
+              watching.
             </p>
-            <div className="sport-list">
-              <span>TENNIS</span>
-              <i />
-              <span>PADEL</span>
-              <i />
-              <span>PICKLEBALL</span>
-              <i />
-              <span>MORE TO COME</span>
-            </div>
           </Reveal>
         </section>
 
@@ -583,8 +641,8 @@ export default function Home() {
             <h2>Be first into the game.</h2>
             <p>
               Sport is still waiting for its quantified layer. Aurevo is built
-              to define it. Join the waitlist and be first into the new era of
-              measured competition.
+              to define it. The first cohort gets early access—and a say in
+              what we measure next.
             </p>
             <Waitlist />
             <small>No spam. Just the signal.</small>

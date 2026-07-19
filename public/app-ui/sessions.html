@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurevo — Sessions</title>
+<style>
+  :root{
+    --bg:#08090b; --card:#141619; --line:#1e2126;
+    --white:#f4f5f2; --muted:#8b8f88; --faint:#5d6157; --dim:#3a3d36;
+    --green:#b8e94f; --teal:#37cdbf; --amber:#f5a623; --orange:#f0902a;
+    --blue:#4da3ff;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:#000; display:flex; justify-content:center; padding:26px;
+        font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif; -webkit-font-smoothing:antialiased;}
+  .phone{ width:424px; background:#000; border-radius:48px; padding:7px; }
+  .screen{ background:var(--bg); border-radius:40px; overflow:hidden; }
+  .pad{ padding:0 20px; }
+
+  /* status bar */
+  .status{ display:flex; justify-content:space-between; align-items:center; padding:14px 26px 2px;}
+  .status .time{ color:var(--white); font-size:15px; font-weight:600; letter-spacing:0.02em;}
+  .status .ico{ display:flex; align-items:center; gap:6px; color:var(--white);}
+
+  h1{ font-size:30px; font-weight:700; color:var(--white); margin:6px 0 16px; letter-spacing:-0.01em;}
+  .label{ font-size:11px; letter-spacing:0.12em; color:var(--faint); text-transform:uppercase;}
+
+  .stat-val{ font-size:20px; font-weight:700; color:var(--white); line-height:1; letter-spacing:-0.01em;}
+  .stat-lab{ font-size:9px; letter-spacing:0.06em; color:var(--faint); text-transform:uppercase; margin-top:5px; line-height:1.25;}
+
+  .divider{ height:1px; background:var(--line); }
+
+  /* pills */
+  .pills{ display:flex; gap:9px; padding:16px 20px 4px;}
+  .pill{ font-size:13px; padding:8px 18px; border-radius:20px; border:1px solid #2b2e33; color:var(--muted);}
+  .pill.on{ background:var(--green); color:#0c1400; border-color:var(--green); font-weight:600;}
+
+  /* session card */
+  .card{ background:var(--card); border-radius:18px; padding:16px 16px 15px; margin:11px 20px 0;}
+  .card .head{ display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted); font-weight:600; letter-spacing:0.01em;}
+  .dot{ width:7px; height:7px; border-radius:50%; flex-shrink:0;}
+  .chev{ margin-left:auto; color:var(--dim); font-size:17px;}
+  .badge{ font-size:9px; font-weight:700; letter-spacing:0.05em; color:#8ff0b0; background:rgba(60,200,120,0.16);
+          padding:2px 7px; border-radius:6px; text-transform:uppercase; margin-left:2px;}
+  .body{ display:flex; align-items:center; margin-top:14px; }
+  .metric{ flex-shrink:0; white-space:nowrap; margin-right:12px;}
+  .metric .n{ font-size:18px; font-weight:700; color:var(--white); line-height:1; letter-spacing:-0.01em;}
+  .metric .u{ font-size:10px; color:var(--muted); font-weight:500; margin-left:2px;}
+  .metric .sub{ font-size:9.5px; color:var(--faint); margin-top:5px; white-space:nowrap;}
+  .ringwrap{ position:relative; width:54px; height:54px; margin-right:12px; flex-shrink:0;}
+  .ringwrap .num{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+                  font-size:15px; font-weight:700; color:var(--white);}
+  .ringwrap .cap{ position:absolute; left:0; right:0; bottom:-15px; text-align:center; font-size:8px; letter-spacing:0.08em; color:var(--faint); text-transform:uppercase;}
+  .spark{ margin-left:auto; text-align:right; flex-shrink:0; width:88px;}
+  .spark svg{ width:88px; height:32px; display:block;}
+  .spark .cap{ font-size:7.5px; letter-spacing:0.07em; color:var(--faint); text-transform:uppercase; margin-top:5px; white-space:nowrap;}
+
+  /* nav */
+  .nav{ display:flex; justify-content:space-around; align-items:center; padding:14px 0 26px; margin-top:16px;}
+  .nav .item{ display:flex; flex-direction:column; align-items:center; gap:5px; color:var(--faint); font-size:10px;}
+  .nav .item.on{ color:var(--green);}
+</style>
+<style>/* embed override: shown inside the site phone frame */html,body{margin:0!important;padding:0!important;background:transparent!important;display:block!important;}.phone{width:auto!important;padding:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;}.screen{border-radius:0!important;}html{scrollbar-width:none;}::-webkit-scrollbar{display:none;}</style></head>
+<body>
+<div class="phone"><div class="screen">
+
+  <!-- status bar -->
+  <div class="status">
+    <span class="time">9:41</span>
+    <span class="ico">
+      <span style="font-size:11px;font-weight:600;">4G</span>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M1 8.5h2v3H1zM5 6h2v5.5H5zM9 3.5h2v8H9zM13 1h2v10.5h-2z" fill="#f4f5f2"/></svg>
+      <svg width="15" height="12" viewBox="0 0 15 12"><path d="M7.5 3.2c2 0 3.8.8 5.1 2.1l1.1-1.2A9 9 0 0 0 7.5 1.6 9 9 0 0 0 1.3 4.1l1.1 1.2A7.1 7.1 0 0 1 7.5 3.2Z" fill="#f4f5f2"/><path d="M7.5 6.1c1.2 0 2.3.5 3.1 1.3l1.1-1.2a6 6 0 0 0-8.4 0l1.1 1.2A4.4 4.4 0 0 1 7.5 6.1Z" fill="#f4f5f2"/><path d="M7.5 8.9 9.3 10a2.5 2.5 0 0 0-3.6 0l1.8 1.1Z" fill="#f4f5f2"/></svg>
+      <svg width="26" height="12" viewBox="0 0 26 12"><rect x="1" y="2" width="21" height="9" rx="2.5" stroke="#f4f5f2" stroke-opacity="0.5" fill="none"/><rect x="2.5" y="3.5" width="16" height="6" rx="1.2" fill="#f4f5f2"/><rect x="23.5" y="4.5" width="1.6" height="4" rx="0.8" fill="#f4f5f2" fill-opacity="0.5"/></svg>
+    </span>
+  </div>
+
+  <div class="pad">
+    <h1>Sessions</h1>
+
+    <!-- All time + heatmap -->
+    <div style="display:flex; gap:16px; align-items:flex-start;">
+      <div style="flex:0 0 auto;">
+        <div class="label">All time</div>
+        <div style="margin:7px 0 0;">
+          <span style="font-size:44px;font-weight:700;color:var(--white);letter-spacing:-0.02em;line-height:0.9;">58,420</span>
+          <span style="font-size:14px;color:var(--muted);font-weight:500;">shots</span>
+        </div>
+        <div style="display:flex; gap:22px; margin-top:16px;">
+          <div><div class="stat-val">214</div><div class="stat-lab">Sessions</div></div>
+          <div><div class="stat-val">96<span style="font-size:13px;">h</span></div><div class="stat-lab">Court<br>time</div></div>
+          <div><div class="stat-val">27<span style="font-size:13px;">m</span></div><div class="stat-lab">Avg<br>length</div></div>
+        </div>
+        <!-- donut + legend: sits to the LEFT of the heatmap -->
+        <div style="display:flex;align-items:center;gap:14px;margin-top:22px;">
+          <svg width="62" height="62" viewBox="0 0 72 72" style="flex-shrink:0;">
+            <circle cx="36" cy="36" r="26" fill="none" stroke="#1a1d21" stroke-width="9"/>
+            <g transform="rotate(-90 36 36)">
+              <circle cx="36" cy="36" r="26" fill="none" stroke="var(--green)" stroke-width="9" stroke-dasharray="98 163.4" stroke-dashoffset="0"/>
+              <circle cx="36" cy="36" r="26" fill="none" stroke="var(--teal)" stroke-width="9" stroke-dasharray="49 163.4" stroke-dashoffset="-98"/>
+              <circle cx="36" cy="36" r="26" fill="none" stroke="var(--amber)" stroke-width="9" stroke-dasharray="16.3 163.4" stroke-dashoffset="-147"/>
+            </g>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;">
+            <div style="display:flex;align-items:center;gap:8px;"><span class="dot" style="background:var(--green);"></span><span style="color:var(--muted);width:74px;">Tennis</span><span style="color:var(--white);font-weight:700;">60%</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span class="dot" style="background:var(--teal);"></span><span style="color:var(--muted);width:74px;">Padel</span><span style="color:var(--white);font-weight:700;">30%</span></div>
+            <div style="display:flex;align-items:center;gap:8px;"><span class="dot" style="background:var(--amber);"></span><span style="color:var(--muted);width:74px;">Pickleball</span><span style="color:var(--white);font-weight:700;">10%</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="flex:1; padding-top:1px;">
+        <div class="label" style="text-align:right;font-size:8px;letter-spacing:0.02em;white-space:nowrap;">Play intensity · Last 6 weeks</div>
+        <div id="heat" style="display:grid;grid-template-columns:repeat(7,1fr);grid-auto-rows:17px;gap:5px;margin-top:8px;"></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;">
+          <span style="font-size:9px;color:var(--dim);">Apr</span>
+          <span style="font-size:9px;color:var(--dim);">Jun</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- filter pills -->
+  <div class="pills">
+    <span class="pill on">All</span>
+    <span class="pill">Tennis</span>
+    <span class="pill">Padel</span>
+    <span class="pill">Pickleball</span>
+  </div>
+
+  <!-- CARD 1 -->
+  <div class="card">
+    <div class="head"><span class="dot" style="background:var(--green);"></span>TENNIS · TRAINING · Tue 17 Jun · 52m<span class="chev">&#8250;</span></div>
+    <div class="body">
+      <div class="ringwrap">
+        <svg width="54" height="54" viewBox="0 0 54 54"><circle cx="27" cy="27" r="22" fill="none" stroke="#22251f" stroke-width="4"/><g transform="rotate(-90 27 27)"><circle cx="27" cy="27" r="22" fill="none" stroke="var(--green)" stroke-width="4" stroke-linecap="round" stroke-dasharray="113.3 138.2"/></g></svg>
+        <div class="num">82</div><div class="cap">Score</div>
+      </div>
+      <div class="metric" style="margin-right:12px;"><span class="n">312</span><span class="u">shots</span><div class="sub">&nbsp;</div></div>
+      <div class="metric"><span class="n">112</span><span class="u">km/h</span><div class="sub">peak swing</div></div>
+      <div class="spark">
+        <svg width="130" height="34" viewBox="0 0 130 34"><polyline points="0,24 18,20 36,22 54,14 72,17 90,10 108,13 130,11" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="cap">Session intensity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 2 -->
+  <div class="card">
+    <div class="head"><span class="dot" style="background:var(--green);"></span>TENNIS · TRAINING · Sun 15 Jun · 38m<span class="chev">&#8250;</span></div>
+    <div class="body">
+      <div class="ringwrap">
+        <svg width="54" height="54" viewBox="0 0 54 54"><circle cx="27" cy="27" r="22" fill="none" stroke="#22251f" stroke-width="4"/><g transform="rotate(-90 27 27)"><circle cx="27" cy="27" r="22" fill="none" stroke="var(--amber)" stroke-width="4" stroke-linecap="round" stroke-dasharray="92.6 138.2"/></g></svg>
+        <div class="num">67</div><div class="cap">Score</div>
+      </div>
+      <div class="metric" style="margin-right:12px;"><span class="n">241</span><span class="u">shots</span><div class="sub">&nbsp;</div></div>
+      <div class="metric"><span class="n">104</span><span class="u">km/h</span><div class="sub">peak swing</div></div>
+      <div class="spark">
+        <svg width="130" height="34" viewBox="0 0 130 34"><polyline points="0,22 18,20 36,17 54,9 72,14 90,22 108,25 130,24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="cap">Session intensity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 3 (match) -->
+  <div class="card">
+    <div class="head"><span class="dot" style="background:var(--teal);"></span>PADEL · MATCH · vs Adam · 64m<span class="badge">Win</span><span class="chev">&#8250;</span></div>
+    <div class="body">
+      <div style="width:54px;margin-right:12px;flex-shrink:0;text-align:center;">
+        <div style="font-size:21px;font-weight:700;color:var(--white);line-height:1;letter-spacing:-0.02em;">2&#8211;1</div>
+        <div style="font-size:8px;letter-spacing:0.08em;color:var(--faint);text-transform:uppercase;margin-top:6px;">Sets</div>
+      </div>
+      <div class="metric" style="margin-right:12px;"><span class="n">389</span><span class="u">shots</span><div class="sub">&nbsp;</div></div>
+      <div class="metric"><span class="n">71</span><span class="u">km/h</span><div class="sub">peak smash</div></div>
+      <div class="spark">
+        <svg width="130" height="34" viewBox="0 0 130 34"><polyline points="0,18 18,20 36,16 54,19 72,11 90,15 108,13 130,14" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="cap">Session intensity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CARD 4 -->
+  <div class="card">
+    <div class="head"><span class="dot" style="background:var(--amber);"></span>PICKLEBALL · TRAINING · Wed 11 Jun · 41m<span class="chev">&#8250;</span></div>
+    <div class="body">
+      <div class="ringwrap">
+        <svg width="54" height="54" viewBox="0 0 54 54"><circle cx="27" cy="27" r="22" fill="none" stroke="#22251f" stroke-width="4"/><g transform="rotate(-90 27 27)"><circle cx="27" cy="27" r="22" fill="none" stroke="var(--orange)" stroke-width="4" stroke-linecap="round" stroke-dasharray="102.3 138.2"/></g></svg>
+        <div class="num">74</div><div class="cap">Score</div>
+      </div>
+      <div class="metric" style="margin-right:12px;"><span class="n">198</span><span class="u">shots</span><div class="sub">&nbsp;</div></div>
+      <div class="metric"><span class="n">58</span><span class="u">km/h</span><div class="sub">peak drive</div></div>
+      <div class="spark">
+        <svg width="130" height="34" viewBox="0 0 130 34"><polyline points="0,20 18,19 36,21 54,15 72,13 90,17 108,18 130,17" fill="none" stroke="var(--orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="cap">Session intensity</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- nav -->
+  <div class="nav">
+    <div class="item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>
+      Home
+    </div>
+    <div class="item on">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="3.5" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg>
+      Sessions
+    </div>
+    <div class="item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5" opacity="0"/><path d="M17 7h4v4"/></svg>
+      Progress
+    </div>
+    <div class="item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.5a4.6 4.6 0 0 1 5 4.5"/></svg>
+      Club
+    </div>
+  </div>
+
+</div></div>
+
+<script>
+  // heatmap: 6 rows x 7 cols, blue intensity
+  var pattern = [
+    2,0,3,1,0,2,4,
+    0,1,4,0,2,0,3,
+    3,0,1,3,4,1,0,
+    1,4,0,2,0,3,1,
+    0,2,3,0,4,1,2,
+    4,1,0,2,1,3,0
+  ];
+  var shades = ['#13161c','#1c3556','#2b5a8f','#3f83c9','#5aa9ff'];
+  var heat = document.getElementById('heat');
+  pattern.forEach(function(v){
+    var d = document.createElement('div');
+    d.style.borderRadius='4px'; d.style.background=shades[v];
+    heat.appendChild(d);
+  });
+</script>
+</body>
+</html>

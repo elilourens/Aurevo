@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aurevo — Club</title>
+<style>
+  :root{
+    --bg:#0a0b0d; --card:#14161a; --line:#20232a; --track:#23262c;
+    --white:#f4f5f2; --muted:#8b8f97; --faint:#5f636b; --dim:#3a3d44;
+    --green:#b8e94f; --blue:#4da3ff; --orange:#f0902a;
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:#000; display:flex; justify-content:center; padding:26px;
+        font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",sans-serif; -webkit-font-smoothing:antialiased;}
+  .phone{ width:424px; background:#000; border-radius:48px; padding:7px; }
+  .screen{ background:var(--bg); border-radius:40px; overflow:hidden; }
+  .pad{ padding:0 22px; }
+
+  .status{ display:flex; justify-content:space-between; align-items:center; padding:14px 28px 2px;}
+  .status .time{ color:var(--white); font-size:15px; font-weight:600;}
+  .status .ico{ display:flex; align-items:center; gap:7px; color:var(--white); font-size:14px; font-weight:600;}
+
+  .label{ font-size:11px; letter-spacing:0.13em; color:var(--faint); text-transform:uppercase;}
+  .divider{ height:1px; background:var(--line);}
+
+  /* circles */
+  .circ{ border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;}
+
+  /* tier cards */
+  .tcard{ flex:1; background:var(--card); border:1px solid #1c1f25; border-top-width:2.5px; border-radius:13px; padding:9px 8px 9px; text-align:center;}
+  .tcard .tl{ font-size:10px; letter-spacing:0.1em; color:var(--muted); text-transform:uppercase;}
+  .tcard .tn{ font-size:29px; font-weight:700; color:var(--white); line-height:1; margin:3px 0 2px; letter-spacing:-0.01em;}
+  .tcard .tt{ font-size:10px; letter-spacing:0.09em; text-transform:uppercase; font-weight:600;}
+  .tcard .ttrack{ height:5px; border-radius:3px; background:var(--track); margin:8px 0 6px; overflow:hidden;}
+  .tcard .tsub{ font-size:9px; color:var(--faint);}
+
+  /* rows */
+  .datebox{ width:40px; text-align:left; flex-shrink:0;}
+  .datebox .d{ font-size:9px; letter-spacing:0.08em; color:var(--green); text-transform:uppercase; font-weight:600;}
+  .datebox .n{ font-size:21px; font-weight:700; color:var(--white); line-height:1.05;}
+  .rowtitle{ font-size:15px; font-weight:700; color:var(--white);}
+  .rowsub{ font-size:12px; color:var(--faint); margin-top:2px;}
+
+  /* nav */
+  .nav{ display:flex; justify-content:space-around; align-items:center; padding:14px 0 26px; margin-top:14px;}
+  .nav .item{ display:flex; flex-direction:column; align-items:center; gap:5px; color:var(--faint); font-size:10px;}
+  .nav .item.on{ color:var(--green);}
+
+  .btn{ display:block; width:100%; text-align:center; border:1px solid #2b2f36; border-radius:24px; padding:13px; color:var(--blue); font-size:15px; font-weight:600; background:transparent;}
+</style>
+<style>/* embed override: shown inside the site phone frame */html,body{margin:0!important;padding:0!important;background:transparent!important;display:block!important;}.phone{width:auto!important;padding:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;}.screen{border-radius:0!important;}html{scrollbar-width:none;}::-webkit-scrollbar{display:none;}</style></head>
+<body>
+<div class="phone"><div class="screen">
+
+  <!-- status bar -->
+  <div class="status">
+    <span class="time">9:41</span>
+    <span class="ico">
+      <svg width="16" height="12" viewBox="0 0 15 12"><path d="M7.5 3.2c2 0 3.8.8 5.1 2.1l1.1-1.2A9 9 0 0 0 7.5 1.6 9 9 0 0 0 1.3 4.1l1.1 1.2A7.1 7.1 0 0 1 7.5 3.2Z" fill="#f4f5f2"/><path d="M7.5 6.1c1.2 0 2.3.5 3.1 1.3l1.1-1.2a6 6 0 0 0-8.4 0l1.1 1.2A4.4 4.4 0 0 1 7.5 6.1Z" fill="#f4f5f2"/><path d="M7.5 8.9 9.3 10a2.5 2.5 0 0 0-3.6 0l1.8 1.1Z" fill="#f4f5f2"/></svg>
+      <span>92%</span>
+      <svg width="26" height="12" viewBox="0 0 26 12"><rect x="1" y="2" width="21" height="9" rx="2.5" stroke="#f4f5f2" stroke-opacity="0.5" fill="none"/><rect x="2.5" y="3.5" width="16" height="6" rx="1.2" fill="#f4f5f2"/><rect x="23.5" y="4.5" width="1.6" height="4" rx="0.8" fill="#f4f5f2" fill-opacity="0.5"/></svg>
+    </span>
+  </div>
+
+  <div class="pad">
+
+    <!-- profile header -->
+    <div style="display:flex; align-items:center; gap:14px; margin:14px 0 18px;">
+      <div class="circ" style="width:54px;height:54px;background:#23262d;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8b8f97" stroke-width="1.7"><circle cx="12" cy="8.5" r="3.6"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6" stroke-linecap="round"/></svg>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:21px;font-weight:700;color:var(--white);line-height:1.1;">Oliver</div>
+        <div style="font-size:13px;color:var(--faint);">@oliver_h</div>
+      </div>
+      <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="#8b8f97" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V15z"/></svg>
+    </div>
+
+    <!-- competitor tier -->
+    <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+      <svg width="46" height="52" viewBox="0 0 46 52" style="flex-shrink:0;">
+        <path d="M23 2 L42 9 V27 C42 39 34 46 23 50 C12 46 4 39 4 27 V9 Z" fill="none" stroke="var(--green)" stroke-width="2.4" stroke-linejoin="round"/>
+        <text x="23" y="31" fill="var(--green)" font-size="17" font-weight="700" text-anchor="middle" font-family="-apple-system,sans-serif">14</text>
+      </svg>
+      <div style="flex:1;">
+        <div style="font-size:24px;font-weight:700;color:var(--white);line-height:1;margin-bottom:9px;">Competitor</div>
+        <div style="display:flex; gap:5px; margin-bottom:8px;">
+          <span style="flex:1;height:7px;border-radius:2px;background:var(--green);"></span>
+          <span style="flex:1;height:7px;border-radius:2px;background:var(--green);"></span>
+          <span style="flex:1;height:7px;border-radius:2px;background:var(--green);"></span>
+          <span style="flex:1;height:7px;border-radius:2px;background:var(--green);"></span>
+          <span style="flex:1;height:7px;border-radius:2px;background:linear-gradient(90deg,var(--green) 45%,#2a2d33 45%);"></span>
+          <span style="flex:1;height:7px;border-radius:2px;background:#2a2d33;"></span>
+          <span style="flex:1;height:7px;border-radius:2px;background:#2a2d33;"></span>
+          <span style="flex:1;height:7px;border-radius:2px;background:#2a2d33;"></span>
+        </div>
+        <div style="font-size:12px;color:var(--faint);">Tier 4 of 7 · 240 pts to <span style="color:var(--white);font-weight:600;">Challenger</span></div>
+      </div>
+    </div>
+
+    <!-- sport tier cards -->
+    <div style="display:flex; gap:11px; margin-bottom:18px;">
+      <div class="tcard" style="border-top-color:var(--green);">
+        <div class="tl">Tennis</div>
+        <div class="tn">12</div>
+        <div class="tt" style="color:var(--green);">Elite</div>
+        <div class="ttrack"><span style="display:block;height:100%;width:72%;background:var(--green);"></span></div>
+        <div class="tsub">180 to Lv 13</div>
+      </div>
+      <div class="tcard" style="border-top-color:var(--blue);">
+        <div class="tl">Padel</div>
+        <div class="tn">8</div>
+        <div class="tt" style="color:var(--blue);">Contender</div>
+        <div class="ttrack"><span style="display:block;height:100%;width:46%;background:var(--blue);"></span></div>
+        <div class="tsub">390 to Lv 9</div>
+      </div>
+      <div class="tcard" style="border-top-color:var(--orange);">
+        <div class="tl">Pickle</div>
+        <div class="tn">3</div>
+        <div class="tt" style="color:var(--orange);">Rookie</div>
+        <div class="ttrack"><span style="display:block;height:100%;width:26%;background:var(--orange);"></span></div>
+        <div class="tsub">40 to Lv 4</div>
+      </div>
+    </div>
+
+    <!-- next up -->
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:12px;">
+      <span class="circ" style="width:7px;height:7px;background:var(--green);"></span>
+      <span class="label">Next up · Saturday</span>
+    </div>
+
+    <svg viewBox="0 0 380 190" width="100%" style="display:block;">
+      <rect x="2" y="2" width="376" height="186" rx="4" fill="#0f2016" stroke="rgba(214,236,222,0.45)" stroke-width="1.4"/>
+      <!-- net: bright vertical centre line -->
+      <line x1="190" y1="2" x2="190" y2="188" stroke="rgba(238,246,241,0.8)" stroke-width="1.7"/>
+      <!-- service lines (parallel to net) -->
+      <line x1="95" y1="2" x2="95" y2="188" stroke="rgba(214,236,222,0.42)" stroke-width="1.3"/>
+      <line x1="285" y1="2" x2="285" y2="188" stroke="rgba(214,236,222,0.42)" stroke-width="1.3"/>
+      <!-- centre service line: only between the service lines -->
+      <line x1="95" y1="95" x2="285" y2="95" stroke="rgba(214,236,222,0.42)" stroke-width="1.3"/>
+      <!-- baseline centre marks -->
+      <line x1="2" y1="95" x2="19" y2="95" stroke="rgba(214,236,222,0.42)" stroke-width="1.3"/>
+      <line x1="361" y1="95" x2="378" y2="95" stroke="rgba(214,236,222,0.42)" stroke-width="1.3"/>
+      <!-- players: green team (You & Sam) left of net, blue team (Adam & Leo) right -->
+      <g>
+        <circle cx="48" cy="60" r="19" fill="#0b1a11" stroke="var(--green)" stroke-width="2"/>
+        <text x="48" y="65" fill="var(--green)" font-size="13" font-weight="700" text-anchor="middle" font-family="-apple-system,sans-serif">OH</text>
+      </g>
+      <g>
+        <circle cx="237" cy="60" r="19" fill="#0b1622" stroke="var(--blue)" stroke-width="2"/>
+        <text x="237" y="65" fill="var(--blue)" font-size="13" font-weight="700" text-anchor="middle" font-family="-apple-system,sans-serif">AS</text>
+      </g>
+      <g>
+        <circle cx="142" cy="130" r="19" fill="#0b1a11" stroke="var(--green)" stroke-width="2"/>
+        <text x="142" y="135" fill="var(--green)" font-size="13" font-weight="700" text-anchor="middle" font-family="-apple-system,sans-serif">SK</text>
+      </g>
+      <g>
+        <circle cx="331" cy="130" r="19" fill="#0b1622" stroke="var(--blue)" stroke-width="2"/>
+        <text x="331" y="135" fill="var(--blue)" font-size="13" font-weight="700" text-anchor="middle" font-family="-apple-system,sans-serif">LM</text>
+      </g>
+    </svg>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin:10px 0 14px;">
+      <span style="font-size:15px;font-weight:700;color:var(--green);">You &amp; Sam</span>
+      <span style="font-size:12px;color:var(--faint);letter-spacing:0.05em;">VS</span>
+      <span style="font-size:15px;font-weight:700;color:var(--blue);">Adam &amp; Leo</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- this week -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin:13px 0 8px;">
+      <span class="label">This week</span>
+      <span style="font-size:13px;color:var(--blue);font-weight:600;">Schedule</span>
+    </div>
+
+    <div style="display:flex; align-items:center; gap:14px; padding:6px 0;">
+      <div class="datebox"><div class="d">Sun</div><div class="n">22</div></div>
+      <div style="flex:1;">
+        <div class="rowtitle">Jess · Padel</div>
+        <div class="rowsub">10:00 · invite pending</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5f636b" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 6.5"/></svg>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:8px 0;"></div>
+
+    <div style="display:flex; align-items:center; gap:14px; padding:6px 0;">
+      <div class="datebox"><div class="d">Wed</div><div class="n">25</div></div>
+      <div style="flex:1;">
+        <div class="rowtitle">Mark · Tennis</div>
+        <div class="rowsub">19:30 · confirmed</div>
+      </div>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3a3d44" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+    </div>
+
+    <!-- rivalry -->
+    <div class="label" style="margin:14px 0 14px;">Your rivalry</div>
+    <div style="display:flex; align-items:center; justify-content:space-between;">
+      <div style="text-align:center;">
+        <div class="circ" style="width:54px;height:54px;background:#0b1a11;border:2px solid var(--green);color:var(--green);font-size:16px;margin:0 auto;">OH</div>
+        <div style="font-size:12px;color:var(--faint);margin-top:7px;">You</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:40px;font-weight:700;line-height:1;letter-spacing:-0.01em;"><span style="color:var(--green);">8</span> <span style="color:var(--faint);font-weight:500;">–</span> <span style="color:var(--blue);">5</span></div>
+        <div style="font-size:12px;color:var(--faint);margin-top:8px;">peak swing 112 vs 104</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="circ" style="width:54px;height:54px;background:#0b1622;border:2px solid var(--blue);color:var(--blue);font-size:16px;margin:0 auto;">AS</div>
+        <div style="font-size:12px;color:var(--faint);margin-top:7px;">Adam</div>
+      </div>
+    </div>
+    <div style="margin:14px 0 18px;"><a class="btn">Request rematch</a></div>
+
+    <!-- friends -->
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <span class="label">Friends</span>
+      <span style="font-size:13px;color:var(--blue);font-weight:600;display:flex;align-items:center;gap:5px;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="1.9" stroke-linecap="round"><circle cx="9" cy="8" r="3.4"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M18 8v6M15 11h6"/></svg>
+        Find friends
+      </span>
+    </div>
+    <div style="display:flex; justify-content:space-between; text-align:center;">
+      <div>
+        <div class="circ" style="width:52px;height:52px;border:1.5px dashed #3f434b;color:#5f636b;font-size:24px;font-weight:400;margin:0 auto;">+</div>
+        <div style="font-size:11px;color:var(--faint);margin-top:7px;">Add</div>
+      </div>
+      <div>
+        <div class="circ" style="width:52px;height:52px;background:#0b1622;border:2px solid var(--blue);color:var(--blue);font-size:15px;margin:0 auto;">AS</div>
+        <div style="font-size:11px;color:var(--faint);margin-top:7px;">Adam</div>
+      </div>
+      <div>
+        <div class="circ" style="width:52px;height:52px;background:#26292f;color:#c3c7cd;font-size:15px;margin:0 auto;">JL</div>
+        <div style="font-size:11px;color:var(--faint);margin-top:7px;">Jess</div>
+      </div>
+      <div>
+        <div class="circ" style="width:52px;height:52px;background:#26292f;color:#c3c7cd;font-size:15px;margin:0 auto;">MK</div>
+        <div style="font-size:11px;color:var(--faint);margin-top:7px;">Mark</div>
+      </div>
+      <div>
+        <div class="circ" style="width:52px;height:52px;background:#26292f;color:#c3c7cd;font-size:15px;margin:0 auto;">SK</div>
+        <div style="font-size:11px;color:var(--faint);margin-top:7px;">Sam</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- nav -->
+  <div class="nav">
+    <div class="item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h14V9.5"/></svg>
+      Home
+    </div>
+    <div class="item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="3.5" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="3.5" cy="18" r="1.2" fill="currentColor" stroke="none"/></svg>
+      Sessions
+    </div>
+    <div class="item">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg>
+      Progress
+    </div>
+    <div class="item on">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.5a4.6 4.6 0 0 1 5 4.5"/></svg>
+      Club
+    </div>
+  </div>
+
+</div></div>
+</body>
+</html>
