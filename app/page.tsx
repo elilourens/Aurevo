@@ -55,14 +55,14 @@ const appScreens = [
   },
   {
     file: "/app-ui/progress.html",
-    width: 393,
+    width: 336,
     label: "Progress",
     blurb: "Every session teaches the next. See what's changing—not just what happened.",
     title: "Aurevo progress screen",
   },
   {
     file: "/app-ui/sport.html",
-    width: 393,
+    width: 340,
     label: "Your sport",
     blurb: "Go deep on one sport—win rate, controlled power and a sweet-spot map of where you strike.",
     title: "Aurevo tennis screen",
