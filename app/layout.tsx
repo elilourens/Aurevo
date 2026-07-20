@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aurevo — The New Measure of Play",
+  title: "Aurevo | The New Measure of Play",
   description:
-    "Aurevo is a lightweight smart bracelet with a pod that attaches to the racket handle—24/7 body insight and direct impact data across tennis, padel and pickleball.",
+    "Aurevo is a lightweight smart bracelet with a pod that attaches to the racket handle: 24/7 body insight and direct impact data across tennis, padel and pickleball.",
 };
 
 export default function RootLayout({

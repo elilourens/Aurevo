@@ -57,14 +57,14 @@ const appScreens = [
     file: "/app-ui/progress.html",
     width: 336,
     label: "Progress",
-    blurb: "Every session teaches the next. See what's changing—not just what happened.",
+    blurb: "Every session teaches the next. See what's changing, not just what happened.",
     title: "Aurevo progress screen",
   },
   {
     file: "/app-ui/sport.html",
     width: 340,
     label: "Your sport",
-    blurb: "Go deep on one sport—win rate, controlled power and a sweet-spot map of where you strike.",
+    blurb: "Go deep on one sport: win rate, controlled power and a sweet-spot map of where you strike.",
     title: "Aurevo tennis screen",
   },
   {
@@ -634,7 +634,7 @@ export default function Home() {
             <p>
               Racket sports have always been measured by the outcome, not the
               performance. Each strike sends a vibration through the handle
-              carrying details you can feel but never see—while a wrist
+              carrying details you can feel but never see, while a wrist
               wearable treats a two-hour match like a jog.
             </p>
           </Reveal>
@@ -653,7 +653,7 @@ export default function Home() {
               <span className="section-number light">02 / ONE POD. TWO WORLDS.</span>
               <h2>Always with you.</h2>
               <p>
-                Racket sensors already exist, but they go unused—another thing
+                Racket sensors already exist, but they go unused: another thing
                 to remember, and only built for one sport. Aurevo is already on
                 your wrist when the group chat turns into a game. In seconds,
                 the pod moves from wrist to racket and measures the shot, not
@@ -669,7 +669,7 @@ export default function Home() {
               <div>
                 <span>02</span>
                 <strong>ONE APP</strong>
-                <p>Tennis, padel and pickleball in one place—not an app per sport.</p>
+                <p>Tennis, padel and pickleball in one place, not an app per sport.</p>
               </div>
               <div>
                 <span>03</span>
@@ -699,7 +699,7 @@ export default function Home() {
               <h2>See the shot behind the score.</h2>
               <p>
                 Capturing the direct impact signal a wrist can only extrapolate
-                from, Aurevo unlocks sport-specific metrics—contact quality,
+                from, Aurevo unlocks sport-specific metrics: contact quality,
                 power versus control, and previously unreachable views like a
                 map of where the ball struck the racket.
               </p>
@@ -752,7 +752,7 @@ export default function Home() {
             <h2>Be first into the game.</h2>
             <p>
               Sport is still waiting for its quantified layer. Aurevo is built
-              to define it. The first cohort gets early access—and a say in
+              to define it. The first cohort gets early access, and a say in
               what we measure next.
             </p>
             <Waitlist />
