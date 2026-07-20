@@ -414,7 +414,7 @@ function AppTour() {
     <div
       className="tour-track"
       ref={trackRef}
-      style={{ height: `${100 + appScreens.length * 80}svh` }}
+      style={{ height: `${100 + appScreens.length * 64}svh` }}
     >
       <div className="tour-pin">
         <div className="app-tour">
