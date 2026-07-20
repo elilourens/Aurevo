@@ -5,6 +5,8 @@
   --paper: #f3f1ea;
   --lime: #caff38;
   --line: rgba(13, 13, 13, 0.16);
+  /* shared page gutter: narrows content and caps it at ~1240px on wide screens */
+  --gutter: max(6vw, calc((100vw - 1240px) / 2), 26px);
 }
 
 * {
@@ -21,7 +23,7 @@ body {
   background: var(--paper);
   color: var(--ink);
   font-family: Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 a {
@@ -186,7 +188,7 @@ a {
 }
 
 .hero h1 {
-  font-size: clamp(70px, 9.7vw, 164px);
+  font-size: clamp(58px, 8vw, 128px);
   font-weight: 500;
   letter-spacing: -0.075em;
   line-height: 0.78;
@@ -248,13 +250,13 @@ a {
 }
 
 .section-pad {
-  padding: 140px max(4vw, 28px);
+  padding: 110px var(--gutter);
 }
 
 .manifesto {
   background: var(--paper);
   overflow: hidden;
-  padding: 110px max(4vw, 28px) 200px;
+  padding: 90px var(--gutter) 170px;
   position: relative;
 }
 
@@ -285,7 +287,7 @@ a {
 .measurement h2,
 .app-overview h2,
 .final-cta h2 {
-  font-size: clamp(54px, 6vw, 98px);
+  font-size: clamp(44px, 4.8vw, 76px);
   font-weight: 500;
   letter-spacing: -0.065em;
   line-height: 0.96;
@@ -299,7 +301,7 @@ a {
 .manifesto p,
 .dual-copy > div > p,
 .measurement-copy > div > p {
-  font-size: 17px;
+  font-size: 16px;
   line-height: 1.6;
   margin: 8px 0 0;
 }
@@ -356,9 +358,9 @@ a {
   color: white;
   display: grid;
   grid-template-columns: 0.82fr 1.18fr;
-  min-height: 840px;
-  padding-bottom: 110px;
-  padding-top: 110px;
+  min-height: 700px;
+  padding-bottom: 90px;
+  padding-top: 90px;
 }
 
 .dual-copy {
@@ -369,8 +371,8 @@ a {
 
 .dual-copy h2,
 .measurement h2 {
-  font-size: clamp(62px, 6.5vw, 112px);
-  margin: 35px 0 32px;
+  font-size: clamp(48px, 5.2vw, 86px);
+  margin: 30px 0 28px;
 }
 
 .mode-list {
@@ -422,138 +424,86 @@ a {
 }
 
 .dual-visual {
-  min-height: 620px;
+  min-height: 540px;
 }
 
 .pod-stage {
-  align-items: center;
-  background:
-    radial-gradient(circle at center, rgba(202, 255, 56, 0.14), transparent 42%),
-    #191919;
-  display: flex;
+  background: #191919;
   height: 100%;
-  justify-content: center;
-  min-height: 620px;
+  min-height: 540px;
   overflow: hidden;
   position: relative;
 }
 
-.pod {
-  align-items: center;
-  background: linear-gradient(150deg, #202321 0%, #050505 58%, #242622 100%);
-  border: 1px solid #3d4138;
-  border-radius: 33% 33% 38% 38%;
-  box-shadow: inset 8px 8px 25px rgba(255, 255, 255, 0.1), 0 60px 80px rgba(0, 0, 0, 0.55);
-  color: var(--lime);
-  display: flex;
-  height: 270px;
-  justify-content: center;
-  position: relative;
-  width: 190px;
-  z-index: 3;
-}
-
-.pod::before {
-  background: #080808;
-  border: 1px solid #363636;
-  border-radius: 50%;
-  content: "";
-  height: 55px;
-  left: 50%;
-  position: absolute;
-  top: -33px;
-  transform: translateX(-50%);
-  width: 106px;
-}
-
-.pod .brand-mark {
-  height: 42px;
-  width: 42px;
-}
-
-.pod .brand-mark-cut {
-  fill: #111;
-}
-
-.pod-sheen {
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
-  border-radius: inherit;
+.pod-shot {
   inset: 0;
   position: absolute;
 }
 
-.pod-shadow {
-  background: rgba(0, 0, 0, 0.9);
-  border-radius: 50%;
-  bottom: 19%;
-  filter: blur(18px);
-  height: 24px;
-  position: absolute;
-  width: 210px;
+.pod-shot img {
+  object-fit: cover;
 }
 
-.orbit {
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  border-radius: 50%;
-  position: absolute;
-}
-
-.orbit-one {
-  height: 76%;
-  width: 76%;
-}
-
-.orbit-two {
-  height: 52%;
-  width: 52%;
-}
-
-.pod-label {
-  border-top: 1px solid rgba(255, 255, 255, 0.42);
+.pod-tag {
+  backdrop-filter: blur(6px);
+  background: rgba(10, 10, 10, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.85);
   font-size: 9px;
-  letter-spacing: 0.12em;
-  padding-top: 7px;
+  font-weight: 700;
+  left: 22px;
+  letter-spacing: 0.13em;
+  padding: 9px 15px;
   position: absolute;
+  top: 22px;
+  z-index: 2;
+}
+
+.pod-switch {
+  bottom: 22px;
+  display: flex;
+  gap: 8px;
+  left: 22px;
+  position: absolute;
+  right: 22px;
+  z-index: 2;
+}
+
+.pod-dot {
+  backdrop-filter: blur(6px);
+  background: rgba(10, 10, 10, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  flex: 1;
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  padding: 11px 0;
   text-transform: uppercase;
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.pod-label::before {
+.pod-dot:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: white;
+}
+
+.pod-dot.is-active {
   background: var(--lime);
-  border-radius: 50%;
-  content: "";
-  height: 6px;
-  position: absolute;
-  top: -3px;
-  width: 6px;
-}
-
-.pod-label-one {
-  left: 8%;
-  top: 28%;
-  width: 26%;
-}
-
-.pod-label-one::before {
-  right: 0;
-}
-
-.pod-label-two {
-  bottom: 24%;
-  right: 7%;
-  text-align: right;
-  width: 27%;
-}
-
-.pod-label-two::before {
-  left: 0;
+  border-color: var(--lime);
+  color: #101010;
 }
 
 .measurement {
   background: #d9ff65;
   display: grid;
-  gap: 7vw;
+  gap: 6vw;
   grid-template-columns: 0.92fr 1.08fr;
-  min-height: 880px;
+  min-height: 760px;
 }
 
 .measurement-copy {
@@ -766,7 +716,8 @@ a {
   margin: 0 auto;
   padding: 8px;
   position: relative;
-  width: min(100%, 340px);
+  /* the svh cap keeps the whole phone inside the pinned viewport */
+  width: min(100%, 340px, 38svh);
   z-index: 2;
 }
 
@@ -806,7 +757,8 @@ a {
     #101210;
   background-size: 80px 80px;
   color: white;
-  overflow: hidden;
+  /* clip (not hidden): hidden would break position:sticky for the tour pin */
+  overflow: clip;
 }
 
 .app-overview-head {
@@ -827,12 +779,27 @@ a {
   margin: 0 0 6px;
 }
 
+/* tall scroll runway; the pin inside stays fixed while it plays */
+.tour-track {
+  margin-top: 30px;
+  position: relative;
+}
+
+.tour-pin {
+  align-items: center;
+  display: flex;
+  height: 100svh;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+}
+
 .app-tour {
   align-items: center;
   display: grid;
   gap: 6vw;
   grid-template-columns: 1fr 0.9fr;
-  margin-top: 90px;
+  width: 100%;
 }
 
 .app-tabs {
@@ -896,26 +863,31 @@ a {
   right: 0;
 }
 
-.tab-progress::after {
-  animation: tabfill 4.2s linear forwards;
+.tab-progress b {
   background: var(--lime);
-  content: "";
   display: block;
   height: 100%;
-  transform: scaleX(0);
   transform-origin: left;
   width: 100%;
-}
-
-@keyframes tabfill {
-  to { transform: scaleX(1); }
 }
 
 .tour-device {
   align-items: center;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   position: relative;
+}
+
+/* active screen's blurb, shown under the phone on small screens only */
+.tour-caption {
+  color: rgba(255,255,255,.62);
+  display: none;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 18px auto 0;
+  max-width: 320px;
+  text-align: center;
 }
 
 .tour-screen {
@@ -927,6 +899,8 @@ a {
   background: #0c0d0c;
   border: 0;
   display: block;
+  /* iframes must not swallow wheel events inside the pinned section */
+  pointer-events: none;
   transform-origin: top left;
 }
 
@@ -1159,7 +1133,7 @@ footer > a:last-child {
   }
 
   .pod-stage {
-    min-height: 620px;
+    min-height: 540px;
   }
 
   .measurement-copy {
@@ -1185,13 +1159,48 @@ footer > a:last-child {
   }
 
   .app-tour {
-    gap: 70px;
+    gap: 34px;
     grid-template-columns: 1fr;
-    margin-top: 70px;
   }
 
+  /* pinned viewport is tight on small screens: tabs collapse to a label row */
   .app-tabs {
+    border-top: 0;
+    flex-direction: row;
+    gap: 14px;
+    margin: 0 auto;
     max-width: 720px;
+    width: 100%;
+  }
+
+  .app-tab {
+    border-bottom: 1px solid rgba(255,255,255,.14);
+    flex: 1;
+    gap: 8px;
+    grid-template-columns: 1fr;
+    padding: 0 0 12px;
+  }
+
+  .app-tab > span {
+    padding-top: 0;
+  }
+
+  .app-tab strong {
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    margin-bottom: 0;
+  }
+
+  .app-tab p {
+    display: none;
+  }
+
+  .phone-frame {
+    width: min(100%, 320px, 36svh);
+  }
+
+  .tour-caption {
+    display: block;
   }
 }
 
@@ -1283,13 +1292,22 @@ footer > a:last-child {
     min-height: 480px;
   }
 
-  .pod {
-    height: 210px;
-    width: 145px;
+  .pod-tag {
+    left: 14px;
+    top: 14px;
   }
 
-  .pod-label {
-    display: none;
+  .pod-switch {
+    bottom: 14px;
+    gap: 6px;
+    left: 14px;
+    right: 14px;
+  }
+
+  .pod-dot {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    padding: 9px 0;
   }
 
   .measurement {
@@ -1339,22 +1357,22 @@ footer > a:last-child {
   }
 
   .app-tour {
-    gap: 55px;
-    margin-top: 55px;
+    gap: 24px;
   }
 
   .app-tab {
-    gap: 16px;
-    padding: 20px 0;
+    gap: 6px;
+    padding: 0 0 10px;
   }
 
-  .app-tab p {
-    font-size: 12px;
+  .app-tab strong {
+    font-size: 9px;
+    letter-spacing: 0.06em;
   }
 
   .phone-frame {
     border-radius: 40px;
-    width: min(86vw, 330px);
+    width: min(86vw, 330px, 34svh);
   }
 
   .phone-screen {

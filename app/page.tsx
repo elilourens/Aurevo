@@ -2,15 +2,41 @@
 
 import {
   MotionConfig,
+  MotionValue,
   motion,
   useInView,
+  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
 } from "framer-motion";
+import Image from "next/image";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+import podPadel from "./images/pod-padel.webp";
+import podPickleball from "./images/pod-pickleball.webp";
+import podTennis from "./images/pod-tennis.webp";
+
 const ease = [0.22, 1, 0.36, 1] as const;
+
+// the pod on every racket it supports, one photo per sport
+const podShots = [
+  {
+    src: podTennis,
+    sport: "Tennis",
+    alt: "Aurevo pod clipped to the handle of a tennis racket lying on a clay court",
+  },
+  {
+    src: podPadel,
+    sport: "Padel",
+    alt: "Aurevo pod clipped to the handle of a padel racket held up on a padel court",
+  },
+  {
+    src: podPickleball,
+    sport: "Pickleball",
+    alt: "Aurevo pod clipped to the handle of a pickleball paddle held above the net",
+  },
+];
 
 const metrics = [
   { label: "Contact", value: "94", unit: "/100", delta: "+8%" },
@@ -243,45 +269,124 @@ function SweetSpot() {
 }
 
 function PodVisual() {
-  return (
-    <div className="pod-stage" aria-label="Aurevo pod concept">
-      <div className="orbit orbit-one" />
-      <div className="orbit orbit-two" />
-      <motion.div
-        className="pod-shadow"
-        animate={{ scale: [1, 0.86, 1], opacity: [0.28, 0.16, 0.28] }}
-        transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="pod"
-        animate={{ y: [-8, 8, -8], rotate: [-3, 3, -3] }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <div className="pod-sheen" />
-        <Mark />
-      </motion.div>
-      <span className="pod-label pod-label-one">24/7 body</span>
-      <span className="pod-label pod-label-two">Direct impact</span>
-    </div>
-  );
-}
-
-function AppTour() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [screenWidth, setScreenWidth] = useState(324);
   const stageRef = useRef<HTMLDivElement>(null);
-  const screenRef = useRef<HTMLDivElement>(null);
   const inView = useInView(stageRef, { margin: "-20% 0px" });
 
   useEffect(() => {
     if (!inView || paused) return;
     const id = setInterval(
-      () => setActive((current) => (current + 1) % appScreens.length),
-      4200,
+      () => setActive((current) => (current + 1) % podShots.length),
+      3800,
     );
     return () => clearInterval(id);
   }, [inView, paused, active]);
+
+  return (
+    <div
+      className="pod-stage"
+      ref={stageRef}
+      onPointerEnter={() => setPaused(true)}
+      onPointerLeave={() => setPaused(false)}
+    >
+      {podShots.map((shot, index) => (
+        <motion.div
+          key={shot.sport}
+          className="pod-shot"
+          initial={false}
+          animate={{
+            opacity: index === active ? 1 : 0,
+            scale: index === active ? 1 : 1.05,
+          }}
+          transition={{ duration: 0.9, ease }}
+        >
+          <Image
+            src={shot.src}
+            alt={shot.alt}
+            fill
+            sizes="(max-width: 980px) 100vw, 62vw"
+            placeholder="blur"
+          />
+        </motion.div>
+      ))}
+      <span className="pod-tag">ONE POD / EVERY RACKET</span>
+      <div className="pod-switch" role="tablist" aria-label="The pod on each racket">
+        {podShots.map((shot, index) => (
+          <button
+            key={shot.sport}
+            type="button"
+            role="tab"
+            aria-selected={index === active}
+            className={index === active ? "pod-dot is-active" : "pod-dot"}
+            onClick={() => setActive(index)}
+          >
+            {shot.sport}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TourTab({
+  screen,
+  index,
+  active,
+  progress,
+  onSelect,
+}: {
+  screen: (typeof appScreens)[number];
+  index: number;
+  active: boolean;
+  progress: MotionValue<number>;
+  onSelect: (index: number) => void;
+}) {
+  // this tab's slice of the pinned scroll; the underline fills across it
+  const fill = useTransform(
+    progress,
+    [index / appScreens.length, (index + 1) / appScreens.length],
+    [0, 1],
+  );
+
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      className={active ? "app-tab is-active" : "app-tab"}
+      onClick={() => onSelect(index)}
+    >
+      <span>0{index + 1}</span>
+      <div>
+        <strong>{screen.label}</strong>
+        <p>{screen.blurb}</p>
+      </div>
+      <i className="tab-progress" aria-hidden="true">
+        <motion.b style={{ scaleX: fill }} />
+      </i>
+    </button>
+  );
+}
+
+function AppTour() {
+  const [active, setActive] = useState(0);
+  const [screenWidth, setScreenWidth] = useState(324);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ["start start", "end end"],
+  });
+
+  // each screen owns an equal slice of the scroll track
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    const index = Math.min(
+      appScreens.length - 1,
+      Math.max(0, Math.floor(value * appScreens.length)),
+    );
+    setActive(index);
+  });
 
   // the mockups are fixed-width pages; scale each iframe to the phone screen
   useEffect(() => {
@@ -294,61 +399,67 @@ function AppTour() {
     return () => observer.disconnect();
   }, []);
 
+  function jumpTo(index: number) {
+    const track = trackRef.current;
+    if (!track) return;
+    const top = track.getBoundingClientRect().top + window.scrollY;
+    const scrollable = track.offsetHeight - window.innerHeight;
+    window.scrollTo({
+      top: top + ((index + 0.5) / appScreens.length) * scrollable,
+      behavior: "smooth",
+    });
+  }
+
   return (
-    <div className="app-tour" ref={stageRef}>
-      <div className="app-tabs" role="tablist" aria-label="App screens">
-        {appScreens.map((screen, index) => (
-          <button
-            key={screen.label}
-            type="button"
-            role="tab"
-            aria-selected={index === active}
-            className={index === active ? "app-tab is-active" : "app-tab"}
-            onClick={() => setActive(index)}
-          >
-            <span>0{index + 1}</span>
-            <div>
-              <strong>{screen.label}</strong>
-              <p>{screen.blurb}</p>
-            </div>
-            {index === active && !paused && (
-              <i className="tab-progress" key={active} />
-            )}
-          </button>
-        ))}
-      </div>
-      <div
-        className="tour-device"
-        onPointerEnter={() => setPaused(true)}
-        onPointerLeave={() => setPaused(false)}
-      >
-        <div className="device-glow" aria-hidden="true" />
-        <div className="phone-frame">
-          <div className="phone-hardware" aria-hidden="true">
-            <span />
-          </div>
-          <div className="phone-screen" ref={screenRef}>
+    <div
+      className="tour-track"
+      ref={trackRef}
+      style={{ height: `${100 + appScreens.length * 80}svh` }}
+    >
+      <div className="tour-pin">
+        <div className="app-tour">
+          <div className="app-tabs" role="tablist" aria-label="App screens">
             {appScreens.map((screen, index) => (
-              <motion.div
-                key={screen.file}
-                className="tour-screen"
-                initial={false}
-                animate={{ opacity: index === active ? 1 : 0 }}
-                transition={{ duration: 0.55, ease }}
-                style={{ pointerEvents: index === active ? "auto" : "none" }}
-              >
-                <iframe
-                  src={screen.file}
-                  title={screen.title}
-                  className="tour-iframe"
-                  style={{
-                    width: screen.width,
-                    height: (screen.width * 852) / 393,
-                    transform: `scale(${screenWidth / screen.width})`,
-                  }}
-                />
-              </motion.div>
+              <TourTab
+                key={screen.label}
+                screen={screen}
+                index={index}
+                active={index === active}
+                progress={scrollYProgress}
+                onSelect={jumpTo}
+              />
             ))}
+          </div>
+          <div className="tour-device">
+            <div className="device-glow" aria-hidden="true" />
+            <div className="phone-frame">
+              <div className="phone-hardware" aria-hidden="true">
+                <span />
+              </div>
+              <div className="phone-screen" ref={screenRef}>
+                {appScreens.map((screen, index) => (
+                  <motion.div
+                    key={screen.file}
+                    className="tour-screen"
+                    initial={false}
+                    animate={{ opacity: index === active ? 1 : 0 }}
+                    transition={{ duration: 0.55, ease }}
+                  >
+                    <iframe
+                      src={screen.file}
+                      title={screen.title}
+                      className="tour-iframe"
+                      style={{
+                        width: screen.width,
+                        height: (screen.width * 852) / 393,
+                        transform: `scale(${screenWidth / screen.width})`,
+                      }}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+            <p className="tour-caption">{appScreens[active].blurb}</p>
           </div>
         </div>
       </div>
