@@ -467,6 +467,29 @@ function AppTour() {
   );
 }
 
+function Nav() {
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return (
+    <nav className={scrolled ? "nav is-scrolled" : "nav"}>
+      <a className="wordmark" href="#top" aria-label="Aurevo home">
+        <span>AUREVO</span>
+      </a>
+      <a className="nav-cta" href="#waitlist">
+        Join waitlist
+        <Arrow />
+      </a>
+    </nav>
+  );
+}
+
 function Waitlist() {
   const [joined, setJoined] = useState(false);
 
@@ -546,21 +569,7 @@ export default function Home() {
   return (
     <MotionConfig reducedMotion="user">
       <main>
-        <nav className="nav">
-          <a className="wordmark" href="#top" aria-label="Aurevo home">
-            <Mark />
-            <span>AUREVO</span>
-          </a>
-          <div className="nav-links">
-            <a href="#technology">Technology</a>
-            <a href="#data">Data</a>
-            <a href="#app">App</a>
-          </div>
-          <a className="nav-cta" href="#waitlist">
-            Join waitlist
-            <Arrow />
-          </a>
-        </nav>
+        <Nav />
 
         <section className="hero" id="top" ref={heroRef}>
           <motion.video
