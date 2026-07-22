@@ -17,6 +17,35 @@ import podTennis from "./images/pod-tennis.webp";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
+// first-touch attribution: remember how the visitor originally found us,
+// so the waitlist submission can carry it
+const UTM_KEYS = [
+  "utm_source",
+  "utm_medium",
+  "utm_campaign",
+  "utm_term",
+  "utm_content",
+] as const;
+const UTM_STORAGE_KEY = "aurevo-utm";
+
+function captureUtm() {
+  try {
+    if (window.localStorage.getItem(UTM_STORAGE_KEY)) return;
+    const params = new URLSearchParams(window.location.search);
+    const utm: Record<string, string> = {};
+    for (const key of UTM_KEYS) {
+      const value = params.get(key);
+      if (value) utm[key] = value.slice(0, 200);
+    }
+    if (document.referrer) utm.referrer = document.referrer.slice(0, 500);
+    if (Object.keys(utm).length === 0) return;
+    utm.landed_at = new Date().toISOString();
+    window.localStorage.setItem(UTM_STORAGE_KEY, JSON.stringify(utm));
+  } catch {
+    // storage unavailable (private mode etc.); attribution is best-effort
+  }
+}
+
 // the pod on every racket it supports, one photo per sport
 const podShots = [
   {
@@ -475,13 +504,36 @@ function Waitlist() {
     const form = new FormData(event.currentTarget);
     const email = String(form.get("email") || "");
     const note = String(form.get("note") || "");
-    if (email) {
-      window.localStorage.setItem("aurevo-waitlist-email", email);
-      if (note) {
-        window.localStorage.setItem("aurevo-waitlist-note", note);
-      }
-      setJoined(true);
+    if (!email) return;
+
+    let utm: Record<string, string> = {};
+    try {
+      utm = JSON.parse(window.localStorage.getItem(UTM_STORAGE_KEY) || "{}");
+    } catch {}
+
+    const endpoint = process.env.NEXT_PUBLIC_WAITLIST_WEBHOOK_URL;
+    if (endpoint) {
+      // Apps Script can't answer a CORS preflight, so send a "simple" request:
+      // text/plain + no-cors delivers the POST without one (response is opaque)
+      fetch(endpoint, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({
+          email,
+          note,
+          ...utm,
+          page: window.location.pathname,
+          submitted_at: new Date().toISOString(),
+        }),
+      }).catch(() => {});
     }
+
+    window.localStorage.setItem("aurevo-waitlist-email", email);
+    if (note) {
+      window.localStorage.setItem("aurevo-waitlist-note", note);
+    }
+    setJoined(true);
   }
 
   return (
@@ -541,6 +593,10 @@ export default function Home() {
   const heroScale = useTransform(smoothProgress, [0, 1], [1, 1.12]);
   const heroOpacity = useTransform(smoothProgress, [0, 0.85], [1, 0.35]);
   const heroY = useTransform(smoothProgress, [0, 1], [0, 110]);
+
+  useEffect(() => {
+    captureUtm();
+  }, []);
 
   return (
     <MotionConfig reducedMotion="user">
