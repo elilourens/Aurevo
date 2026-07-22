@@ -71,6 +71,9 @@ const metrics = [
   { label: "Control", value: "87", unit: "%", delta: "+12%" },
 ];
 
+// how long each phone screen stays up; also drives the tab fill-up indicator
+const TOUR_INTERVAL = 3800;
+
 // live HTML mockups shown inside the phone; width = each file's rendered content width
 const appViews = [
   {
@@ -165,8 +168,65 @@ function Reveal({
   );
 }
 
+// drifts the section's background grid away from the cursor (inverse parallax),
+// writing CSS vars directly so mouse moves never re-render the page
+function useGridParallax() {
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let raf = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let x = 0;
+    let y = 0;
+
+    const tick = () => {
+      x += (targetX - x) * 0.07;
+      y += (targetY - y) * 0.07;
+      el.style.setProperty("--grid-x", `${x.toFixed(2)}px`);
+      el.style.setProperty("--grid-y", `${y.toFixed(2)}px`);
+      if (Math.abs(targetX - x) < 0.05 && Math.abs(targetY - y) < 0.05) {
+        raf = 0;
+        return;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    const kick = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    const onMove = (event: PointerEvent) => {
+      const rect = el.getBoundingClientRect();
+      targetX = -((event.clientX - rect.left) / rect.width - 0.5) * 52;
+      targetY = -((event.clientY - rect.top) / rect.height - 0.5) * 36;
+      kick();
+    };
+    const onLeave = () => {
+      targetX = 0;
+      targetY = 0;
+      kick();
+    };
+
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerleave", onLeave);
+    return () => {
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerleave", onLeave);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
+  return ref;
+}
+
 function SweetSpot() {
   const [points, setPoints] = useState(seedImpacts);
+  // the drag cue sits on the strings until the first paint, then fades out
+  const [interacted, setInteracted] = useState(false);
   // slow idle drift phase; paused while the user is interacting
   const [phase, setPhase] = useState(0);
   const lastRef = useRef({ x: 51, y: 45 });
@@ -176,6 +236,7 @@ function SweetSpot() {
   const inView = useInView(cardRef, { margin: "-10% 0px" });
 
   function addPoint(event: React.PointerEvent<HTMLDivElement>) {
+    setInteracted(true);
     touchedAtRef.current = performance.now();
     const rect = event.currentTarget.getBoundingClientRect();
     const x = Math.min(90, Math.max(10, ((event.clientX - rect.left) / rect.width) * 100));
@@ -266,6 +327,17 @@ function SweetSpot() {
         >
           <div className="racket-strings" />
           <canvas ref={canvasRef} className="heat-canvas" />
+          <span
+            className={interacted ? "heat-cue is-hidden" : "heat-cue"}
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24" className="hint-drag">
+              <path d="M2.5 12h4.5M17 12h4.5M5.2 9.5 2.5 12l2.7 2.5M18.8 9.5l2.7 2.5-2.7 2.5" />
+              <circle cx="12" cy="12" r="2.4" />
+            </svg>
+            <span className="cue-text">Drag across the strings</span>
+            <span className="cue-text-short">Drag</span>
+          </span>
         </div>
         <div className="sweet-stats">
           <span className="sweet-label">Sweet-spot hits</span>
@@ -282,13 +354,6 @@ function SweetSpot() {
           </div>
         </div>
       </div>
-      <span className="sweet-hint">
-        <svg aria-hidden="true" viewBox="0 0 24 24" className="hint-drag">
-          <path d="M2.5 12h4.5M17 12h4.5M5.2 9.5 2.5 12l2.7 2.5M18.8 9.5l2.7 2.5-2.7 2.5" />
-          <circle cx="12" cy="12" r="2.4" />
-        </svg>
-        Drag across the strings
-      </span>
     </div>
   );
 }
@@ -396,10 +461,12 @@ function AppPhone() {
     if (!inView || paused) return;
     const id = setInterval(
       () => show((active + 1) % appViews.length),
-      3800,
+      TOUR_INTERVAL,
     );
     return () => clearInterval(id);
   }, [inView, paused, active]);
+
+  const autoplaying = inView && !paused;
 
   // the mockups are fixed-width pages; scale each iframe to the phone screen
   useEffect(() => {
@@ -454,8 +521,25 @@ function AppPhone() {
                   setPaused(true);
                 }}
               >
-                <TabIcon view={view.label} />
-                <span>{view.label}</span>
+                <span className="tab-content">
+                  <TabIcon view={view.label} />
+                  <span>{view.label}</span>
+                </span>
+                {index === active && (
+                  <span
+                    key={`${visits[index]}-${autoplaying}`}
+                    aria-hidden="true"
+                    className={
+                      autoplaying
+                        ? "tab-content tab-fill is-filling"
+                        : "tab-content tab-fill"
+                    }
+                    style={{ animationDuration: `${TOUR_INTERVAL}ms` }}
+                  >
+                    <TabIcon view={view.label} />
+                    <span>{view.label}</span>
+                  </span>
+                )}
               </button>
             ))}
           </div>
@@ -482,16 +566,18 @@ function Nav() {
 
   return (
     <nav className={scrolled ? "nav is-scrolled" : "nav"}>
-      <a className="wordmark" href="#top" aria-label="Aurevo home">
+      <a className="wordmark nav-island" href="#top" aria-label="Aurevo home">
         <span>AUREVO</span>
       </a>
-      <a
-        className={pastHero ? "nav-cta is-breathing" : "nav-cta"}
-        href="#waitlist"
-      >
-        Join waitlist
-        <Arrow />
-      </a>
+      <div className="nav-island nav-island-cta">
+        <a
+          className={pastHero ? "nav-cta is-breathing" : "nav-cta"}
+          href="#waitlist"
+        >
+          Join waitlist
+          <Arrow />
+        </a>
+      </div>
     </nav>
   );
 }
@@ -593,6 +679,7 @@ export default function Home() {
   const heroScale = useTransform(smoothProgress, [0, 1], [1, 1.12]);
   const heroOpacity = useTransform(smoothProgress, [0, 0.85], [1, 0.35]);
   const heroY = useTransform(smoothProgress, [0, 1], [0, 110]);
+  const gridRef = useGridParallax();
 
   useEffect(() => {
     captureUtm();
@@ -693,6 +780,14 @@ export default function Home() {
                 stop there. When the same pod clips to the handle, Aurevo
                 measures the shot, not the arm.
               </p>
+            </Reveal>
+          </div>
+          <Reveal className="dual-visual" delay={0.1}>
+            <PodVisual />
+          </Reveal>
+          {/* on mobile this lands below the pod images, splitting the copy */}
+          <div className="dual-after">
+            <Reveal>
               <p>
                 Racket sensors reveal cutting-edge data, yet go unused because
                 they&apos;re another thing to remember and only work for one
@@ -710,9 +805,6 @@ export default function Home() {
               <span>MORE TO COME</span>
             </Reveal>
           </div>
-          <Reveal className="dual-visual" delay={0.1}>
-            <PodVisual />
-          </Reveal>
         </section>
 
         <section className="measurement section-pad" id="data">
@@ -743,7 +835,7 @@ export default function Home() {
           </Reveal>
         </section>
 
-        <section className="app-overview section-pad" id="app">
+        <section className="app-overview section-pad" id="app" ref={gridRef}>
           <div className="app-duo">
             <div className="app-copy">
               <Reveal>

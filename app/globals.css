@@ -69,31 +69,110 @@ a {
   height: 78px;
   left: 0;
   padding: 0 3.25vw;
+  pointer-events: none;
   position: fixed;
   right: 0;
   top: 0;
   transition:
-    background-color 320ms ease, height 320ms ease, box-shadow 320ms ease,
-    top 320ms ease, left 320ms ease, right 320ms ease,
-    border-radius 320ms ease, border-color 320ms ease;
-  border: 1px solid transparent;
+    height 320ms ease, top 320ms ease, left 320ms ease, right 320ms ease,
+    padding 320ms ease;
   z-index: 20;
 }
 
-/* collapsed state once the page scrolls: floating black-smoke glass pill */
+.nav > * {
+  pointer-events: auto;
+}
+
 .nav.is-scrolled {
+  height: 54px;
+  left: 14px;
+  padding: 0;
+  right: 14px;
+  top: 10px;
+}
+
+/* each side of the nav is its own floating black-smoke glass island */
+.nav-island {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  display: inline-flex;
+  height: 54px;
+  transition:
+    background-color 320ms ease, border-color 320ms ease,
+    box-shadow 320ms ease, padding 320ms ease;
+}
+
+.nav.is-scrolled .nav-island {
   backdrop-filter: blur(32px) saturate(150%);
   -webkit-backdrop-filter: blur(32px) saturate(150%);
   background: rgba(8, 9, 8, 0.62);
   border-color: rgba(255, 255, 255, 0.14);
-  border-radius: 999px;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     0 18px 40px rgba(0, 0, 0, 0.38);
-  height: 54px;
-  left: 14px;
-  right: 14px;
-  top: 10px;
+}
+
+.nav.is-scrolled .wordmark {
+  padding: 0 22px;
+}
+
+.nav.is-scrolled .nav-island-cta {
+  padding: 0 9px;
+}
+
+/* glowing comet that orbits the cta island's border */
+@property --beam-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.nav-island-cta {
+  position: relative;
+}
+
+.nav-island-cta::before,
+.nav-island-cta::after {
+  animation: beamOrbit 4.2s linear infinite;
+  background: conic-gradient(
+    from var(--beam-angle),
+    transparent 0deg 300deg,
+    rgba(202, 255, 56, 0) 300deg,
+    rgba(202, 255, 56, 0.85) 352deg,
+    #f2ffcb 360deg
+  );
+  border-radius: inherit;
+  content: "";
+  inset: -1px;
+  opacity: 0;
+  padding: 2px;
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 320ms ease;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.nav-island-cta::after {
+  filter: blur(7px);
+}
+
+.nav.is-scrolled .nav-island-cta::before,
+.nav.is-scrolled .nav-island-cta::after {
+  opacity: 1;
+}
+
+@keyframes beamOrbit {
+  to {
+    --beam-angle: 360deg;
+  }
 }
 
 .wordmark {
@@ -139,6 +218,11 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .nav-cta.is-breathing {
     animation: none;
+  }
+
+  .nav-island-cta::before,
+  .nav-island-cta::after {
+    display: none;
   }
 }
 
@@ -335,6 +419,7 @@ a {
 
 .manifesto p,
 .dual-copy > div > p,
+.dual-after > div > p,
 .measurement-copy > div > p {
   font-size: 16px;
   line-height: 1.6;
@@ -392,7 +477,11 @@ a {
   background: var(--ink);
   color: white;
   display: grid;
+  grid-template-areas:
+    "copy visual"
+    "after visual";
   grid-template-columns: 0.82fr 1.18fr;
+  grid-template-rows: auto 1fr;
   padding-bottom: 64px;
   padding-top: 64px;
 }
@@ -400,6 +489,13 @@ a {
 .dual-copy {
   display: flex;
   flex-direction: column;
+  grid-area: copy;
+  padding-right: 7vw;
+}
+
+.dual-after {
+  grid-area: after;
+  margin-top: 18px;
   padding-right: 7vw;
 }
 
@@ -421,10 +517,6 @@ a {
   font-style: normal;
 }
 
-.dual-copy > div > p + p {
-  margin-top: 18px;
-}
-
 .sport-list {
   align-items: center;
   display: flex;
@@ -444,6 +536,7 @@ a {
 }
 
 .dual-visual {
+  grid-area: visual;
   min-height: 480px;
 }
 
@@ -637,7 +730,13 @@ a {
   overflow: hidden;
   position: relative;
   touch-action: none;
+  transition: border-color 300ms ease, box-shadow 300ms ease;
   width: 100%;
+}
+
+.racket-oval:hover {
+  border-color: #5d615e;
+  box-shadow: 0 0 34px rgba(202, 255, 56, 0.16);
 }
 
 .racket-strings {
@@ -716,16 +815,45 @@ a {
   color: #5b8ad6;
 }
 
-.sweet-hint {
+/* pulsing pill on the strings: the "this is interactive" cue,
+   gone after the first paint */
+.heat-cue {
   align-items: center;
-  color: #8b8d86;
+  animation: cuePulse 2.4s ease-in-out infinite;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  background: rgba(9, 11, 9, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  color: #ecefe9;
   display: flex;
-  font-size: 9px;
+  font-size: 10px;
+  font-weight: 700;
   gap: 9px;
-  justify-content: center;
-  letter-spacing: 0.08em;
-  margin-top: 20px;
+  left: 50%;
+  letter-spacing: 0.09em;
+  padding: 9px 15px;
+  pointer-events: none;
+  position: absolute;
   text-transform: uppercase;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 450ms ease;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.heat-cue.is-hidden {
+  opacity: 0;
+}
+
+.cue-text-short {
+  display: none;
+}
+
+@keyframes cuePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(202, 255, 56, 0); }
+  50% { box-shadow: 0 0 20px 3px rgba(202, 255, 56, 0.3); }
 }
 
 .hint-drag {
@@ -744,7 +872,7 @@ a {
 }
 
 /* nudge side to side: "you can drag this" */
-.sweet-hint .hint-drag {
+.heat-cue .hint-drag {
   animation: hintNudge 2.2s ease-in-out infinite;
 }
 
@@ -754,7 +882,8 @@ a {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sweet-hint .hint-drag {
+  .heat-cue,
+  .heat-cue .hint-drag {
     animation: none;
   }
 }
@@ -807,6 +936,8 @@ a {
     linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
     linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
     #101210;
+  /* the grid drifts against the cursor; vars come from useGridParallax */
+  background-position: var(--grid-x, 0px) var(--grid-y, 0px);
   background-size: 80px 80px;
   color: white;
   overflow: clip;
@@ -886,16 +1017,56 @@ a {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 4px;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.05em;
   padding: 4px 0;
+  position: relative;
   transition: color 250ms ease;
 }
 
 .phone-tab.is-active {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.tab-content {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* lime duplicate of the active tab that fills icon + text left to right,
+   timing out the moment the phone swaps to the next screen */
+.tab-fill {
   color: var(--lime);
+  left: 50%;
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+}
+
+.tab-fill.is-filling {
+  animation-fill-mode: forwards;
+  animation-name: tabFill;
+  animation-timing-function: linear;
+  clip-path: inset(0 100% 0 0);
+}
+
+@keyframes tabFill {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab-fill.is-filling {
+    animation: none;
+    clip-path: none;
+  }
 }
 
 .tab-icon {
@@ -1130,8 +1301,25 @@ footer {
     grid-template-columns: 1fr;
   }
 
+  /* stacked order: copy, images, second paragraph; margins replace the
+     row gap so the paragraph hangs closer to the images it belongs to */
   .dual-mode {
+    gap: 0;
+    grid-template-areas:
+      "copy"
+      "visual"
+      "after";
+    grid-template-rows: auto;
     padding-top: 70px;
+  }
+
+  .dual-mode .dual-visual {
+    margin-top: 64px;
+  }
+
+  .dual-after {
+    margin-top: 36px;
+    padding: 0;
   }
 
   .dual-copy {
@@ -1178,8 +1366,21 @@ footer {
   .nav.is-scrolled {
     height: 48px;
     left: 8px;
+    padding: 0;
     right: 8px;
     top: 8px;
+  }
+
+  .nav-island {
+    height: 48px;
+  }
+
+  .nav.is-scrolled .wordmark {
+    padding: 0 16px;
+  }
+
+  .nav.is-scrolled .nav-island-cta {
+    padding: 0 7px;
   }
 
   .nav-cta {
@@ -1231,12 +1432,17 @@ footer {
 
   .manifesto p,
   .dual-copy > div > p,
+  .dual-after > div > p,
   .measurement-copy > div > p {
     font-size: 15px;
   }
 
-  .dual-mode {
-    gap: 60px;
+  .dual-mode .dual-visual {
+    margin-top: 44px;
+  }
+
+  .dual-after {
+    margin-top: 28px;
   }
 
   .sport-list {
@@ -1298,6 +1504,26 @@ footer {
 
   .racket-oval {
     border-width: 4px;
+  }
+
+  /* the oval is narrow on phones: shrink the cue and use the short label */
+  .heat-cue {
+    font-size: 8px;
+    gap: 6px;
+    padding: 7px 10px;
+  }
+
+  .heat-cue .hint-drag {
+    height: 13px;
+    width: 13px;
+  }
+
+  .cue-text {
+    display: none;
+  }
+
+  .cue-text-short {
+    display: inline;
   }
 
   .sweet-big strong {
