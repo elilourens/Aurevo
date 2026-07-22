@@ -270,5 +270,33 @@
   </div>
 
 </div></div>
+
+<style>/* embed intro: sport tier tracks fill when the screen loads */
+.ttrack > span{animation:introTrack 1s cubic-bezier(.22,1,.36,1) both;transform-origin:left;}
+.ttrack > span:nth-child(1){animation-delay:.2s;}
+@keyframes introTrack{from{transform:scaleX(0);}}
+@media (prefers-reduced-motion: reduce){.ttrack > span{animation:none;}}
+</style>
+<script>/* embed intro: the rivalry score counts up */
+(function () {
+  try {
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.querySelectorAll('div[style*="font-size:40px"] > span').forEach(function (el) {
+      var final = el.textContent.trim();
+      if (!/^\d+$/.test(final)) return;
+      var n = parseInt(final, 10);
+      var t0 = null;
+      function step(t) {
+        if (!t0) t0 = t;
+        var k = Math.min(1, (t - t0) / 900);
+        k = 1 - Math.pow(1 - k, 3);
+        el.textContent = String(Math.round(n * k));
+        if (k < 1) requestAnimationFrame(step); else el.textContent = final;
+      }
+      requestAnimationFrame(step);
+    });
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>

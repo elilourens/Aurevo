@@ -106,16 +106,6 @@ a {
   width: fit-content;
 }
 
-.brand-mark {
-  fill: currentColor;
-  height: 26px;
-  width: 26px;
-}
-
-.brand-mark-cut {
-  fill: var(--ink);
-}
-
 .nav-cta {
   align-items: center;
   background: var(--lime);
@@ -134,6 +124,22 @@ a {
 .nav-cta:hover {
   opacity: 0.88;
   transform: translateY(-1px);
+}
+
+/* past the hero the waitlist button breathes a soft lime glow */
+.nav-cta.is-breathing {
+  animation: ctaBreathe 4.5s ease-in-out infinite;
+}
+
+@keyframes ctaBreathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(202, 255, 56, 0); }
+  50% { box-shadow: 0 0 24px 5px rgba(202, 255, 56, 0.4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-cta.is-breathing {
+    animation: none;
+  }
 }
 
 .icon {
@@ -201,10 +207,10 @@ a {
 }
 
 .hero h1 {
-  font-size: clamp(58px, 8vw, 128px);
+  font-size: clamp(44px, 6.2vw, 96px);
   font-weight: 500;
-  letter-spacing: -0.075em;
-  line-height: 0.78;
+  letter-spacing: -0.06em;
+  line-height: 0.92;
   margin: 0;
 }
 
@@ -247,7 +253,7 @@ a {
   display: flex;
   font-size: 9px;
   font-weight: 700;
-  justify-content: space-between;
+  justify-content: flex-end;
   left: 3.25vw;
   letter-spacing: 0.14em;
   position: absolute;
@@ -260,6 +266,22 @@ a {
   align-items: center;
   display: flex;
   gap: 12px;
+}
+
+/* the discover arrow bobs; translateX because the glyph is pre-rotated 90deg */
+.hero-footer .icon-down {
+  animation: arrowBob 2.4s ease-in-out infinite;
+}
+
+@keyframes arrowBob {
+  0%, 100% { transform: rotate(90deg) translateX(0); }
+  50% { transform: rotate(90deg) translateX(5px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-footer .icon-down {
+    animation: none;
+  }
 }
 
 .section-pad {
@@ -381,40 +403,26 @@ a {
   padding-right: 7vw;
 }
 
-.dual-copy h2,
 .measurement h2 {
-  font-size: clamp(48px, 5.2vw, 86px);
+  font-size: clamp(44px, 4.6vw, 74px);
   margin: 22px 0 20px;
 }
 
-.mode-list {
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
-  margin-top: 38px;
+/* longer two-line headline: smaller than the other section titles */
+.dual-copy h2 {
+  font-size: clamp(32px, 3.4vw, 54px);
+  letter-spacing: -0.045em;
+  line-height: 1.04;
+  margin: 22px 0 24px;
 }
 
-.mode-list > div {
-  align-items: baseline;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
-  display: grid;
-  grid-template-columns: 40px 110px 1fr;
-  padding: 15px 0;
-}
-
-.mode-list span {
+.dual-copy h2 em {
   color: var(--lime);
-  font-size: 9px;
+  font-style: normal;
 }
 
-.mode-list strong {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-}
-
-.mode-list p {
-  color: rgba(255, 255, 255, 0.58);
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 0;
+.dual-copy > div > p + p {
+  margin-top: 18px;
 }
 
 .sport-list {
@@ -709,13 +717,46 @@ a {
 }
 
 .sweet-hint {
-  color: #565856;
-  display: block;
+  align-items: center;
+  color: #8b8d86;
+  display: flex;
   font-size: 9px;
+  gap: 9px;
+  justify-content: center;
   letter-spacing: 0.08em;
   margin-top: 20px;
-  text-align: center;
   text-transform: uppercase;
+}
+
+.hint-drag {
+  fill: none;
+  height: 16px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+  width: 16px;
+}
+
+.hint-drag circle {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* nudge side to side: "you can drag this" */
+.sweet-hint .hint-drag {
+  animation: hintNudge 2.2s ease-in-out infinite;
+}
+
+@keyframes hintNudge {
+  0%, 100% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sweet-hint .hint-drag {
+    animation: none;
+  }
 }
 
 .phone-frame {
@@ -728,8 +769,7 @@ a {
   margin: 0 auto;
   padding: 8px;
   position: relative;
-  /* the svh cap keeps the whole phone inside the pinned viewport */
-  width: min(100%, 340px, 38svh);
+  width: min(100%, 340px);
   z-index: 2;
 }
 
@@ -769,118 +809,35 @@ a {
     #101210;
   background-size: 80px 80px;
   color: white;
-  /* clip (not hidden): hidden would break position:sticky for the tour pin */
   overflow: clip;
 }
 
-.app-overview-head {
-  align-items: end;
-  display: grid;
-  gap: 40px 8vw;
-  grid-template-columns: 1.3fr 0.7fr;
-}
-
-.app-overview h2 {
-  margin: 34px 0 0;
-}
-
-.app-overview-head p {
-  color: rgba(255,255,255,.62);
-  font-size: 17px;
-  line-height: 1.65;
-  margin: 0 0 6px;
-}
-
-/* tall scroll runway; the pin inside stays fixed while it plays */
-.tour-track {
-  margin-top: 30px;
-  position: relative;
-}
-
-.tour-pin {
-  align-items: center;
-  display: flex;
-  height: 100svh;
-  overflow: hidden;
-  position: sticky;
-  top: 0;
-}
-
-.app-tour {
+.app-duo {
   align-items: center;
   display: grid;
   gap: 6vw;
   grid-template-columns: 1fr 0.9fr;
-  width: 100%;
 }
 
-.app-tabs {
-  border-top: 1px solid rgba(255,255,255,.14);
-  display: flex;
-  flex-direction: column;
+.app-overview h2 {
+  font-size: clamp(44px, 4.6vw, 74px);
+  margin: 22px 0 20px;
 }
 
-.app-tab {
-  align-items: start;
-  background: none;
-  border: 0;
-  border-bottom: 1px solid rgba(255,255,255,.14);
-  color: white;
-  cursor: pointer;
-  display: grid;
-  gap: 24px;
-  grid-template-columns: 30px 1fr;
-  opacity: 0.4;
-  padding: 26px 0;
-  position: relative;
-  text-align: left;
-  transition: opacity 250ms ease;
+.app-overview h2 span {
+  color: rgba(255, 255, 255, 0.45);
 }
 
-.app-tab.is-active,
-.app-tab:hover {
-  opacity: 1;
-}
-
-.app-tab > span {
-  color: var(--lime);
-  font-size: 9px;
-  letter-spacing: 0.12em;
-  padding-top: 3px;
-}
-
-.app-tab strong {
-  display: block;
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  margin-bottom: 7px;
-  text-transform: uppercase;
-}
-
-.app-tab p {
-  color: rgba(255,255,255,.55);
-  font-size: 13px;
-  line-height: 1.55;
+.app-copy p {
+  color: rgba(255,255,255,.62);
+  font-size: 16px;
+  line-height: 1.65;
   margin: 0;
-  max-width: 420px;
+  max-width: 460px;
 }
 
-.tab-progress {
-  background: rgba(255,255,255,.14);
-  bottom: -1px;
-  height: 2px;
-  left: 0;
-  overflow: hidden;
-  position: absolute;
-  right: 0;
-}
-
-.tab-progress b {
-  background: var(--lime);
-  display: block;
-  height: 100%;
-  transform-origin: left;
-  width: 100%;
+.app-copy p + p {
+  margin-top: 18px;
 }
 
 .tour-device {
@@ -889,17 +846,6 @@ a {
   flex-direction: column;
   justify-content: center;
   position: relative;
-}
-
-/* active screen's blurb, shown under the phone on small screens only */
-.tour-caption {
-  color: rgba(255,255,255,.62);
-  display: none;
-  font-size: 12px;
-  line-height: 1.5;
-  margin: 18px auto 0;
-  max-width: 320px;
-  text-align: center;
 }
 
 .tour-screen {
@@ -911,9 +857,55 @@ a {
   background: #0c0d0c;
   border: 0;
   display: block;
-  /* iframes must not swallow wheel events inside the pinned section */
+  /* the phone is a showcase, not a browsing surface */
   pointer-events: none;
   transform-origin: top left;
+}
+
+/* in-phone bottom tab bar; this is where the view titles live */
+.phone-tabbar {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  background: rgba(7, 9, 7, 0.86);
+  border-top: 1px solid rgba(255, 255, 255, 0.09);
+  bottom: 0;
+  display: flex;
+  left: 0;
+  padding: 8px 10px 14px;
+  position: absolute;
+  right: 0;
+  z-index: 3;
+}
+
+.phone-tab {
+  align-items: center;
+  background: none;
+  border: 0;
+  color: rgba(255, 255, 255, 0.42);
+  cursor: pointer;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 4px 0;
+  transition: color 250ms ease;
+}
+
+.phone-tab.is-active {
+  color: var(--lime);
+}
+
+.tab-icon {
+  fill: none;
+  height: 19px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+  width: 19px;
 }
 
 .device-glow {
@@ -946,11 +938,13 @@ a {
   max-width: 440px;
 }
 
+/* dark close, bookending the dark hero; lime carries the accents */
 .final-cta {
-  background: var(--lime);
+  background: var(--ink);
+  color: white;
   min-height: 850px;
   overflow: hidden;
-  padding: 150px max(4vw, 28px) 30px;
+  padding: 150px var(--gutter) 30px;
   position: relative;
 }
 
@@ -963,15 +957,23 @@ a {
 }
 
 .final-cta h2 {
-  font-size: clamp(68px, 8.4vw, 140px);
+  font-size: clamp(56px, 6.8vw, 110px);
   margin: 32px 0 27px;
 }
 
 .final-inner > p {
+  color: rgba(255, 255, 255, 0.78);
   font-size: 17px;
   line-height: 1.55;
   margin: auto;
   max-width: 560px;
+}
+
+.perks-line {
+  color: var(--lime);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  margin-top: 14px !important;
 }
 
 .waitlist-form {
@@ -982,73 +984,83 @@ a {
   max-width: 600px;
 }
 
+/* email first and most prominent */
+.waitlist-email {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 100px;
+  color: white;
+  font-size: 16px;
+  min-height: 64px;
+  outline: 0;
+  padding: 0 26px;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.waitlist-email:focus {
+  border-color: var(--lime);
+  box-shadow: 0 0 26px rgba(202, 255, 56, 0.18);
+}
+
 .waitlist-form textarea {
-  background: white;
-  border: 1px solid var(--ink);
-  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  color: white;
   font-size: 14px;
   outline: 0;
-  padding: 18px 22px;
+  padding: 16px 22px;
   resize: none;
+  transition: border-color 200ms ease;
+}
+
+.waitlist-form textarea:focus {
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .waitlist-form textarea::placeholder,
-.waitlist-row input::placeholder {
-  color: #7c7a74;
+.waitlist-email::placeholder {
+  color: rgba(255, 255, 255, 0.38);
 }
 
-.waitlist-row {
-  background: white;
-  border: 1px solid var(--ink);
-  border-radius: 100px;
-  display: flex;
-  min-height: 66px;
-  padding: 6px;
-}
-
-.waitlist-row input {
-  background: transparent;
-  border: 0;
-  flex: 1;
-  min-width: 0;
-  outline: 0;
-  padding: 0 20px;
-}
-
-.waitlist-row button {
+.waitlist-submit {
   align-items: center;
-  background: var(--ink);
+  background: var(--lime);
   border: 0;
   border-radius: 100px;
-  color: white;
+  box-shadow: 0 0 42px rgba(202, 255, 56, 0.22);
+  color: var(--ink);
   cursor: pointer;
   display: flex;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   gap: 16px;
+  justify-content: center;
   letter-spacing: .09em;
-  padding: 0 20px 0 24px;
+  min-height: 60px;
+  padding: 0 24px;
   text-transform: uppercase;
+  transition: background 180ms ease, transform 180ms ease;
+}
+
+.waitlist-submit:hover {
+  background: white;
+  transform: translateY(-1px);
 }
 
 .success-message {
-  background: white;
-  border: 1px solid var(--ink);
+  background: rgba(202, 255, 56, 0.1);
+  border: 1px solid var(--lime);
   border-radius: 100px;
+  color: white;
   font-size: 14px;
   font-weight: 700;
   margin: 0 auto;
   padding: 22px 34px;
 }
 
-.final-inner > small {
-  font-size: 9px;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-}
-
 .court-lines {
-  border: 1px solid rgba(13,13,13,.12);
+  border: 1px solid rgba(202, 255, 56, 0.14);
   height: 620px;
   left: 50%;
   position: absolute;
@@ -1060,7 +1072,7 @@ a {
 
 .court-lines::before,
 .court-lines::after {
-  border: 1px solid rgba(13,13,13,.12);
+  border: 1px solid rgba(202, 255, 56, 0.14);
   content: "";
   position: absolute;
 }
@@ -1079,29 +1091,23 @@ a {
 
 footer {
   align-items: center;
-  border-top: 1px solid rgba(13,13,13,.25);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
   bottom: 30px;
-  display: grid;
+  color: rgba(255, 255, 255, 0.6);
+  display: flex;
   font-size: 8px;
   font-weight: 700;
-  grid-template-columns: 1fr auto 1fr;
-  left: max(4vw, 28px);
+  justify-content: space-between;
+  left: var(--gutter);
   letter-spacing: .11em;
   padding-top: 20px;
   position: absolute;
-  right: max(4vw, 28px);
-}
-
-footer > a:last-child {
-  justify-self: end;
+  right: var(--gutter);
 }
 
 .dark-wordmark {
+  color: white;
   font-size: 13px;
-}
-
-.dark-wordmark .brand-mark-cut {
-  fill: var(--lime);
 }
 
 @media (max-width: 980px) {
@@ -1132,10 +1138,6 @@ footer > a:last-child {
     padding: 0;
   }
 
-  .mode-list {
-    margin-top: 36px;
-  }
-
   .pod-stage {
     min-height: 460px;
   }
@@ -1153,58 +1155,17 @@ footer > a:last-child {
     max-width: 680px;
   }
 
-  .app-overview-head {
-    grid-template-columns: 1fr;
-    max-width: 720px;
-  }
-
-  .app-overview-head p {
-    margin: 0;
-  }
-
-  .app-tour {
-    gap: 34px;
+  .app-duo {
+    gap: 55px;
     grid-template-columns: 1fr;
   }
 
-  /* pinned viewport is tight on small screens: tabs collapse to a label row */
-  .app-tabs {
-    border-top: 0;
-    flex-direction: row;
-    gap: 14px;
-    margin: 0 auto;
-    max-width: 720px;
-    width: 100%;
-  }
-
-  .app-tab {
-    border-bottom: 1px solid rgba(255,255,255,.14);
-    flex: 1;
-    gap: 8px;
-    grid-template-columns: 1fr;
-    padding: 0 0 12px;
-  }
-
-  .app-tab > span {
-    padding-top: 0;
-  }
-
-  .app-tab strong {
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    margin-bottom: 0;
-  }
-
-  .app-tab p {
-    display: none;
+  .app-copy p {
+    max-width: 680px;
   }
 
   .phone-frame {
-    width: min(100%, 320px, 36svh);
-  }
-
-  .tour-caption {
-    display: block;
+    width: min(100%, 320px);
   }
 }
 
@@ -1219,10 +1180,6 @@ footer > a:last-child {
     left: 8px;
     right: 8px;
     top: 8px;
-  }
-
-  .mode-list {
-    display: none;
   }
 
   .nav-cta {
@@ -1240,8 +1197,8 @@ footer > a:last-child {
   }
 
   .hero h1 {
-    font-size: clamp(61px, 20vw, 92px);
-    line-height: .84;
+    font-size: clamp(38px, 11vw, 52px);
+    line-height: .92;
   }
 
   .hero-content > p {
@@ -1254,14 +1211,6 @@ footer > a:last-child {
     bottom: 20px;
     left: 20px;
     right: 20px;
-  }
-
-  .hero-footer > span {
-    display: none;
-  }
-
-  .hero-footer a {
-    margin-left: auto;
   }
 
   .section-pad {
@@ -1288,14 +1237,6 @@ footer > a:last-child {
 
   .dual-mode {
     gap: 60px;
-  }
-
-  .mode-list > div {
-    grid-template-columns: 26px 86px 1fr;
-  }
-
-  .mode-list p {
-    font-size: 11px;
   }
 
   .sport-list {
@@ -1368,27 +1309,17 @@ footer > a:last-child {
     gap: 20px;
   }
 
-  .app-overview-head p {
+  .app-duo {
+    gap: 45px;
+  }
+
+  .app-copy p {
     font-size: 15px;
-  }
-
-  .app-tour {
-    gap: 24px;
-  }
-
-  .app-tab {
-    gap: 6px;
-    padding: 0 0 10px;
-  }
-
-  .app-tab strong {
-    font-size: 9px;
-    letter-spacing: 0.06em;
   }
 
   .phone-frame {
     border-radius: 40px;
-    width: min(86vw, 330px, 34svh);
+    width: min(86vw, 330px);
   }
 
   .phone-screen {
@@ -1412,26 +1343,13 @@ footer > a:last-child {
     margin-top: 28px;
   }
 
-  .waitlist-row {
-    background: transparent;
-    border: 0;
-    border-radius: 0;
-    flex-direction: column;
-    gap: 10px;
-    padding: 0;
+  .waitlist-email {
+    font-size: 15px;
+    min-height: 58px;
   }
 
-  .waitlist-row input,
-  .waitlist-row button {
-    border: 1px solid var(--ink);
-    border-radius: 100px;
-    height: 58px;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .waitlist-row input {
-    background: white;
+  .waitlist-submit {
+    min-height: 56px;
   }
 
   .success-message {
@@ -1439,13 +1357,8 @@ footer > a:last-child {
   }
 
   footer {
-    grid-template-columns: 1fr 1fr;
     left: 20px;
     right: 20px;
-  }
-
-  footer > span {
-    display: none;
   }
 }
 

@@ -174,11 +174,11 @@
   <!-- Tertiary bullets -->
   <div style="border-left:2px solid #f5a623;padding-left:10px;margin-bottom:8px;">
     <div style="font-size:8px;color:#f5a623;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Weakest link</div>
-    <div style="font-size:11.5px;color:#cfd2c6;line-height:1.35;">Backhand contact &#8212; <span style="color:#f4f5f0;">12% below</span> forehand</div>
+    <div style="font-size:11.5px;color:#cfd2c6;line-height:1.35;">Backhand contact: <span style="color:#f4f5f0;">12% below</span> forehand</div>
   </div>
   <div style="border-left:2px solid #c2f24a;padding-left:10px;margin-bottom:9px;">
     <div style="font-size:8px;color:#c2f24a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Momentum</div>
-    <div style="font-size:11.5px;color:#cfd2c6;line-height:1.35;">Serve speed &#8212; <span style="color:#f4f5f0;">+6 km/h</span> this month</div>
+    <div style="font-size:11.5px;color:#cfd2c6;line-height:1.35;">Serve speed: <span style="color:#f4f5f0;">+6 km/h</span> this month</div>
   </div>
 
   <div style="height:0.5px;background:#1a1c17;margin-bottom:8px;"></div>
@@ -206,5 +206,34 @@
 
 </div>
 
+<style>/* embed intro: lime bars rise when the screen loads */
+svg rect[fill="#c2f24a"]{transform-box:fill-box;transform-origin:50% 100%;animation:introBar .9s cubic-bezier(.22,1,.36,1) both;}
+@keyframes introBar{from{transform:scaleY(0);}}
+@media (prefers-reduced-motion: reduce){svg rect[fill="#c2f24a"]{animation:none;}}
+</style>
+<script>/* embed intro: the three headline numbers count up */
+(function () {
+  try {
+    document.querySelectorAll('svg rect[fill="#c2f24a"]').forEach(function (bar, i) {
+      bar.style.animationDelay = (0.15 + i * 0.08) + "s";
+    });
+    if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    document.querySelectorAll("div").forEach(function (el) {
+      if (el.children.length !== 0 || !/^\+\d+%$/.test(el.textContent.trim())) return;
+      var final = el.textContent.trim();
+      var n = parseInt(final.replace(/\D/g, ""), 10);
+      var t0 = null;
+      function step(t) {
+        if (!t0) t0 = t;
+        var k = Math.min(1, (t - t0) / 900);
+        k = 1 - Math.pow(1 - k, 3);
+        el.textContent = "+" + Math.round(n * k) + "%";
+        if (k < 1) requestAnimationFrame(step); else el.textContent = final;
+      }
+      requestAnimationFrame(step);
+    });
+  } catch (e) {}
+})();
+</script>
 </body>
 </html>

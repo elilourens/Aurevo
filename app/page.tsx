@@ -2,10 +2,8 @@
 
 import {
   MotionConfig,
-  MotionValue,
   motion,
   useInView,
-  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
@@ -44,41 +42,18 @@ const metrics = [
   { label: "Control", value: "87", unit: "%", delta: "+12%" },
 ];
 
-// live HTML mockups shown inside the phone; width = each file's design width
-const appScreens = [
-  {
-    file: "/app-ui/home.html",
-    width: 642,
-    label: "Today",
-    blurb: "Health context beside your live game profile. Know when to push and when to recover.",
-    title: "Aurevo home screen",
-  },
+// live HTML mockups shown inside the phone; width = each file's rendered content width
+const appViews = [
   {
     file: "/app-ui/progress.html",
     width: 336,
     label: "Progress",
-    blurb: "Every session teaches the next. See what's changing, not just what happened.",
     title: "Aurevo progress screen",
-  },
-  {
-    file: "/app-ui/sport.html",
-    width: 340,
-    label: "Your sport",
-    blurb: "Go deep on one sport: win rate, controlled power and a sweet-spot map of where you strike.",
-    title: "Aurevo tennis screen",
-  },
-  {
-    file: "/app-ui/sessions.html",
-    width: 410,
-    label: "Sessions",
-    blurb: "A season you can read. Every match searchable by sport, score and intensity.",
-    title: "Aurevo sessions screen",
   },
   {
     file: "/app-ui/club.html",
     width: 410,
     label: "Club",
-    blurb: "Win the match, know why. Rivalries and a rating that moves on measured performance.",
     title: "Aurevo club screen",
   },
 ];
@@ -136,15 +111,6 @@ function Arrow({ down = false }: { down?: boolean }) {
   );
 }
 
-function Mark() {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 32 32" className="brand-mark">
-      <path d="M5 24 13.4 6h5.2L27 24h-5.8l-1.5-3.7h-7.5L10.8 24H5Z" />
-      <path className="brand-mark-cut" d="m14 16.2 2-5.2 2 5.2h-4Z" />
-    </svg>
-  );
-}
-
 function Reveal({
   children,
   className = "",
@@ -172,10 +138,16 @@ function Reveal({
 
 function SweetSpot() {
   const [points, setPoints] = useState(seedImpacts);
+  // slow idle drift phase; paused while the user is interacting
+  const [phase, setPhase] = useState(0);
   const lastRef = useRef({ x: 51, y: 45 });
+  const touchedAtRef = useRef(0);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(cardRef, { margin: "-10% 0px" });
 
   function addPoint(event: React.PointerEvent<HTMLDivElement>) {
+    touchedAtRef.current = performance.now();
     const rect = event.currentTarget.getBoundingClientRect();
     const x = Math.min(90, Math.max(10, ((event.clientX - rect.left) / rect.width) * 100));
     const y = Math.min(90, Math.max(10, ((event.clientY - rect.top) / rect.height) * 100));
@@ -183,6 +155,22 @@ function SweetSpot() {
     lastRef.current = { x, y };
     setPoints((prev) => [...prev.slice(-79), { x, y }]);
   }
+
+  useEffect(() => {
+    if (!inView) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    let last = 0;
+    const tick = (t: number) => {
+      raf = requestAnimationFrame(tick);
+      // a slow drift doesn't need 60fps; ~12fps keeps the redraw cheap
+      if (t - last < 80) return;
+      last = t;
+      if (performance.now() - touchedAtRef.current > 1200) setPhase(t / 1000);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -199,9 +187,11 @@ function SweetSpot() {
       ctx.clearRect(0, 0, w, h);
       // density pass: stack translucent blobs, then map density through the thermal LUT
       const radius = w * 0.3;
+      let i = 0;
       for (const point of points) {
-        const px = (point.x / 100) * w;
-        const py = (point.y / 100) * h;
+        i += 1;
+        const px = ((point.x + Math.sin(phase * 0.55 + i * 1.9) * 1.4) / 100) * w;
+        const py = ((point.y + Math.cos(phase * 0.42 + i * 1.3) * 1.2) / 100) * h;
         const grad = ctx.createRadialGradient(px, py, 0, px, py, radius);
         grad.addColorStop(0, "rgba(0,0,0,0.26)");
         grad.addColorStop(1, "rgba(0,0,0,0)");
@@ -224,7 +214,7 @@ function SweetSpot() {
     const observer = new ResizeObserver(draw);
     observer.observe(canvas);
     return () => observer.disconnect();
-  }, [points]);
+  }, [points, phase]);
 
   const hits = points.filter(
     (p) => Math.hypot(p.x - SWEET_CENTER.x, p.y - SWEET_CENTER.y) <= SWEET_RADIUS,
@@ -232,7 +222,7 @@ function SweetSpot() {
   const pct = Math.round((hits / points.length) * 100);
 
   return (
-    <div className="sweet-card">
+    <div className="sweet-card" ref={cardRef}>
       <div className="sweet-head">
         <span>SWEET SPOT</span>
         <em>· where you strike</em>
@@ -263,7 +253,13 @@ function SweetSpot() {
           </div>
         </div>
       </div>
-      <span className="sweet-hint">Move across the strings</span>
+      <span className="sweet-hint">
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="hint-drag">
+          <path d="M2.5 12h4.5M17 12h4.5M5.2 9.5 2.5 12l2.7 2.5M18.8 9.5l2.7 2.5-2.7 2.5" />
+          <circle cx="12" cy="12" r="2.4" />
+        </svg>
+        Drag across the strings
+      </span>
     </div>
   );
 }
@@ -329,64 +325,52 @@ function PodVisual() {
   );
 }
 
-function TourTab({
-  screen,
-  index,
-  active,
-  progress,
-  onSelect,
-}: {
-  screen: (typeof appScreens)[number];
-  index: number;
-  active: boolean;
-  progress: MotionValue<number>;
-  onSelect: (index: number) => void;
-}) {
-  // this tab's slice of the pinned scroll; the underline fills across it
-  const fill = useTransform(
-    progress,
-    [index / appScreens.length, (index + 1) / appScreens.length],
-    [0, 1],
-  );
-
-  return (
-    <button
-      type="button"
-      role="tab"
-      aria-selected={active}
-      className={active ? "app-tab is-active" : "app-tab"}
-      onClick={() => onSelect(index)}
-    >
-      <span>0{index + 1}</span>
-      <div>
-        <strong>{screen.label}</strong>
-        <p>{screen.blurb}</p>
-      </div>
-      <i className="tab-progress" aria-hidden="true">
-        <motion.b style={{ scaleX: fill }} />
-      </i>
-    </button>
+function TabIcon({ view }: { view: string }) {
+  return view === "Progress" ? (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="tab-icon">
+      <path d="M4 19h16M5 15l4-5 3.4 3L19 6" />
+    </svg>
+  ) : (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="tab-icon">
+      <path d="M8 4h8v3a4 4 0 0 1-8 0V4Z" />
+      <path d="M8 5H5.5a0 0 0 0 0 0 0c0 2.4 1 4 2.9 4M16 5h2.5c0 2.4-1 4-2.9 4M12 11v4m-3 5h6m-3-5v5" />
+    </svg>
   );
 }
 
-function AppTour() {
+function AppPhone() {
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
+  // per-view visit counters key the iframes, so activating a view remounts it
+  // and replays the mockup's built-in intro (bars fill, numbers count up)
+  const [visits, setVisits] = useState(() => appViews.map(() => 0));
   const [screenWidth, setScreenWidth] = useState(324);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
   const screenRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: trackRef,
-    offset: ["start start", "end end"],
-  });
+  const startedRef = useRef(false);
+  const inView = useInView(stageRef, { margin: "-25% 0px" });
 
-  // each screen owns an equal slice of the scroll track
-  useMotionValueEvent(scrollYProgress, "change", (value) => {
-    const index = Math.min(
-      appScreens.length - 1,
-      Math.max(0, Math.floor(value * appScreens.length)),
-    );
+  function show(index: number) {
     setActive(index);
-  });
+    setVisits((prev) => prev.map((v, i) => (i === index ? v + 1 : v)));
+  }
+
+  // replay the first view's intro when the phone first scrolls into view
+  useEffect(() => {
+    if (inView && !startedRef.current) {
+      startedRef.current = true;
+      show(0);
+    }
+  }, [inView]);
+
+  useEffect(() => {
+    if (!inView || paused) return;
+    const id = setInterval(
+      () => show((active + 1) % appViews.length),
+      3800,
+    );
+    return () => clearInterval(id);
+  }, [inView, paused, active]);
 
   // the mockups are fixed-width pages; scale each iframe to the phone screen
   useEffect(() => {
@@ -399,67 +383,52 @@ function AppTour() {
     return () => observer.disconnect();
   }, []);
 
-  function jumpTo(index: number) {
-    const track = trackRef.current;
-    if (!track) return;
-    const top = track.getBoundingClientRect().top + window.scrollY;
-    const scrollable = track.offsetHeight - window.innerHeight;
-    window.scrollTo({
-      top: top + ((index + 0.5) / appScreens.length) * scrollable,
-      behavior: "smooth",
-    });
-  }
-
   return (
-    <div
-      className="tour-track"
-      ref={trackRef}
-      style={{ height: `${100 + appScreens.length * 64}svh` }}
-    >
-      <div className="tour-pin">
-        <div className="app-tour">
-          <div className="app-tabs" role="tablist" aria-label="App screens">
-            {appScreens.map((screen, index) => (
-              <TourTab
-                key={screen.label}
-                screen={screen}
-                index={index}
-                active={index === active}
-                progress={scrollYProgress}
-                onSelect={jumpTo}
+    <div className="tour-device" ref={stageRef}>
+      <div className="device-glow" aria-hidden="true" />
+      <div className="phone-frame">
+        <div className="phone-hardware" aria-hidden="true">
+          <span />
+        </div>
+        <div className="phone-screen" ref={screenRef}>
+          {appViews.map((view, index) => (
+            <motion.div
+              key={view.file}
+              className="tour-screen"
+              initial={false}
+              animate={{ opacity: index === active ? 1 : 0 }}
+              transition={{ duration: 0.55, ease }}
+            >
+              <iframe
+                key={`${view.file}#${visits[index]}`}
+                src={view.file}
+                title={view.title}
+                className="tour-iframe"
+                style={{
+                  width: view.width,
+                  height: (view.width * 852) / 393,
+                  transform: `scale(${screenWidth / view.width})`,
+                }}
               />
+            </motion.div>
+          ))}
+          <div className="phone-tabbar" role="tablist" aria-label="App views">
+            {appViews.map((view, index) => (
+              <button
+                key={view.label}
+                type="button"
+                role="tab"
+                aria-selected={index === active}
+                className={index === active ? "phone-tab is-active" : "phone-tab"}
+                onClick={() => {
+                  show(index);
+                  setPaused(true);
+                }}
+              >
+                <TabIcon view={view.label} />
+                <span>{view.label}</span>
+              </button>
             ))}
-          </div>
-          <div className="tour-device">
-            <div className="device-glow" aria-hidden="true" />
-            <div className="phone-frame">
-              <div className="phone-hardware" aria-hidden="true">
-                <span />
-              </div>
-              <div className="phone-screen" ref={screenRef}>
-                {appScreens.map((screen, index) => (
-                  <motion.div
-                    key={screen.file}
-                    className="tour-screen"
-                    initial={false}
-                    animate={{ opacity: index === active ? 1 : 0 }}
-                    transition={{ duration: 0.55, ease }}
-                  >
-                    <iframe
-                      src={screen.file}
-                      title={screen.title}
-                      className="tour-iframe"
-                      style={{
-                        width: screen.width,
-                        height: (screen.width * 852) / 393,
-                        transform: `scale(${screenWidth / screen.width})`,
-                      }}
-                    />
-                  </motion.div>
-                ))}
-              </div>
-            </div>
-            <p className="tour-caption">{appScreens[active].blurb}</p>
           </div>
         </div>
       </div>
@@ -469,9 +438,14 @@ function AppTour() {
 
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const [pastHero, setPastHero] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 40);
+    const onScroll = () => {
+      setScrolled(window.scrollY > 40);
+      // the breathing glow only starts once the hero has scrolled away
+      setPastHero(window.scrollY > window.innerHeight * 0.85);
+    };
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -482,7 +456,10 @@ function Nav() {
       <a className="wordmark" href="#top" aria-label="Aurevo home">
         <span>AUREVO</span>
       </a>
-      <a className="nav-cta" href="#waitlist">
+      <a
+        className={pastHero ? "nav-cta is-breathing" : "nav-cta"}
+        href="#waitlist"
+      >
         Join waitlist
         <Arrow />
       </a>
@@ -519,32 +496,31 @@ function Waitlist() {
         </motion.p>
       ) : (
         <>
+          <label className="sr-only" htmlFor="email">
+            Email address
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            required
+            autoComplete="email"
+            placeholder="Email address"
+            className="waitlist-email"
+          />
           <label className="sr-only" htmlFor="note">
-            What should Aurevo measure first?
+            How hyped are you? Or what would you love it to measure?
           </label>
           <textarea
             id="note"
             name="note"
             rows={3}
-            placeholder="What should Aurevo measure first? (optional)"
+            placeholder="How hyped are you? Or what would you love it to measure? Best comments win a free one"
           />
-          <div className="waitlist-row">
-            <label className="sr-only" htmlFor="email">
-              Email address
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              autoComplete="email"
-              placeholder="Email address"
-            />
-            <button type="submit">
-              Join the waitlist
-              <Arrow />
-            </button>
-          </div>
+          <button type="submit" className="waitlist-submit">
+            Join the waitlist
+            <Arrow />
+          </button>
         </>
       )}
     </form>
@@ -587,30 +563,22 @@ export default function Home() {
             className="hero-content"
             style={{ opacity: heroOpacity, y: heroY }}
           >
-            <motion.span
-              className="hero-kicker"
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.15, ease }}
-            >
-              THE NEW MEASURE OF PLAY
-            </motion.span>
             <motion.h1
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.25, ease }}
             >
-              Every strike.
+              You feel every strike.
               <br />
-              <em>Measured.</em>
+              <em>Now you&apos;ll see it.</em>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.45, ease }}
             >
-              Meet Aurevo, a lightweight smart bracelet with a pod that
-              attaches to the racket handle.
+              The wearable that measures how you actually play. Tennis, padel
+              and pickleball.
             </motion.p>
             <motion.a
               className="primary-cta"
@@ -619,12 +587,11 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.58, ease }}
             >
-              Be first on court
+              Join the waitlist
               <Arrow />
             </motion.a>
           </motion.div>
           <div className="hero-footer">
-            <span>BODY / RACKET / ONE POD</span>
             <a href="#problem">
               Discover Aurevo
               <Arrow down />
@@ -634,17 +601,17 @@ export default function Home() {
 
         <section className="manifesto" id="problem">
           <Reveal className="manifesto-inner">
-            <span className="section-number">01 / THE SIGNAL</span>
+            <span className="section-number">01 / THE PROBLEM</span>
             <h2>
-              Wearables count the steps.
+              Racket sports have always been measured by the outcome.
               <br />
-              <span>We measure the strike.</span>
+              <span>Not the performance.</span>
             </h2>
             <p>
-              Racket sports have always been measured by the outcome, not the
-              performance. Each strike sends a vibration through the handle
-              carrying details you can feel but never see, while a wrist
-              wearable treats a two-hour match like a jog.
+              Each strike sends a vibration through the handle, carrying
+              details you can feel but never see. Until now, that signal has
+              vanished after every rally, with wearables treating a two-hour
+              match like a jog.
             </p>
           </Reveal>
           <div className="signal-line" aria-hidden="true">
@@ -659,32 +626,23 @@ export default function Home() {
         <section className="dual-mode section-pad" id="technology">
           <div className="dual-copy">
             <Reveal>
-              <span className="section-number light">02 / ONE POD. TWO WORLDS.</span>
-              <h2>Always with you.</h2>
+              <span className="section-number light">02 / INTRODUCING AUREVO</span>
+              <h2>
+                A lightweight smart bracelet
+                <br />
+                <em>that attaches to your racket.</em>
+              </h2>
               <p>
-                Racket sensors already exist, but they go unused: another thing
-                to remember, and only built for one sport. Aurevo is already on
-                your wrist when the group chat turns into a game. In seconds,
-                the pod moves from wrist to racket and measures the shot, not
-                the arm.
+                Aurevo brings 24/7 body insights, then asks why they should
+                stop there. When the same pod clips to the handle, Aurevo
+                measures the shot, not the arm.
               </p>
-            </Reveal>
-            <Reveal className="mode-list" delay={0.1}>
-              <div>
-                <span>01</span>
-                <strong>NO WATCH</strong>
-                <p>24/7 body insight without a screen strapped to your wrist.</p>
-              </div>
-              <div>
-                <span>02</span>
-                <strong>ONE APP</strong>
-                <p>Tennis, padel and pickleball in one place, not an app per sport.</p>
-              </div>
-              <div>
-                <span>03</span>
-                <strong>THE HANDLE</strong>
-                <p>Direct impact data from the racket itself, not estimates extrapolated from your arm.</p>
-              </div>
+              <p>
+                Racket sensors reveal cutting-edge data, yet go unused because
+                they&apos;re another thing to remember and only work for one
+                sport. Aurevo is already with you, and in seconds the pod moves
+                from wrist to racket.
+              </p>
             </Reveal>
             <Reveal className="sport-list" delay={0.16}>
               <span>TENNIS</span>
@@ -708,9 +666,9 @@ export default function Home() {
               <h2>See the shot behind the score.</h2>
               <p>
                 Capturing the direct impact signal a wrist can only extrapolate
-                from, Aurevo unlocks sport-specific metrics: contact quality,
-                power versus control, and previously unreachable views like a
-                map of where the ball struck the racket.
+                from, Aurevo unlocks sport-specific metrics, from contact
+                quality and power versus control to previously unreachable
+                views like a heat map of where the ball struck the racket.
               </p>
             </Reveal>
             <Reveal className="metric-strip" delay={0.12}>
@@ -730,20 +688,32 @@ export default function Home() {
         </section>
 
         <section className="app-overview section-pad" id="app">
-          <div className="app-overview-head">
-            <Reveal>
-              <span className="section-number light">04 / THE COMPLETE PICTURE</span>
-              <h2>Body and racket. One app.</h2>
-            </Reveal>
-            <Reveal delay={0.08}>
-              <p>
-                Sleep, activity and recovery sit beside every match you play.
-                Every session compounds, fusing health and racket data to show
-                what to work on next.
-              </p>
+          <div className="app-duo">
+            <div className="app-copy">
+              <Reveal>
+                <span className="section-number light">04 / MEASURED COMPETITION</span>
+                <h2>
+                  Not just who won.
+                  <br />
+                  <span>But why.</span>
+                </h2>
+              </Reveal>
+              <Reveal delay={0.08}>
+                <p>
+                  Every session compounds, fusing health and racket data,
+                  showing what to work on next.
+                </p>
+                <p>
+                  Add friends, build rivalries and let your player rating move
+                  with measured performance rather than opinion. Face one of
+                  them and you both get the breakdown.
+                </p>
+              </Reveal>
+            </div>
+            <Reveal className="app-visual" delay={0.1}>
+              <AppPhone />
             </Reveal>
           </div>
-          <AppTour />
           <Reveal className="pro-note" delay={0.1}>
             <span>COMING NEXT</span>
             <p>
@@ -757,23 +727,23 @@ export default function Home() {
         <section className="final-cta" id="waitlist">
           <div className="court-lines" aria-hidden="true" />
           <Reveal className="final-inner">
-            <span className="section-number">THE QUANTIFIED ERA OF SPORT</span>
-            <h2>Be first into the game.</h2>
+            <span className="section-number light">THE QUANTIFIED ERA OF SPORT</span>
+            <h2>Be first into the new era.</h2>
             <p>
               Sport is still waiting for its quantified layer. Aurevo is built
-              to define it. The first cohort gets early access, and a say in
-              what we measure next.
+              to define it.
+            </p>
+            <p className="perks-line">
+              Join the waitlist for perks, including founding pricing when we
+              release.
             </p>
             <Waitlist />
-            <small>No spam. Just the signal.</small>
           </Reveal>
           <footer>
             <a className="wordmark dark-wordmark" href="#top">
-              <Mark />
               <span>AUREVO</span>
             </a>
-            <span>© 2026 AUREVO</span>
-            <a href="mailto:hello@aurevo.co">HELLO@AUREVO.CO</a>
+            <span>NO SPAM. JUST SIGNAL.</span>
           </footer>
         </section>
       </main>
