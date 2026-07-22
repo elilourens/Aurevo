@@ -932,15 +932,37 @@ a {
 }
 
 .app-overview {
-  background:
-    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
-    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-    #101210;
-  /* the grid drifts against the cursor; vars come from useGridParallax */
-  background-position: var(--grid-x, 0px) var(--grid-y, 0px);
-  background-size: 80px 80px;
+  background: #0b0d0b;
   color: white;
   overflow: clip;
+  position: relative;
+}
+
+.app-overview > :not(.court-sketch) {
+  position: relative;
+  z-index: 1;
+}
+
+/* faint aerial court linework behind the section, echoing the hero's
+   overhead footage; drifts against the cursor via useMouseDrift */
+.court-sketch {
+  left: 50%;
+  pointer-events: none;
+  position: absolute;
+  top: 48%;
+  transform: translate(
+      calc(-50% + var(--drift-x, 0px)),
+      calc(-50% + var(--drift-y, 0px))
+    )
+    rotate(-8deg);
+  width: min(1250px, 130vw);
+  z-index: 0;
+}
+
+.court-sketch svg {
+  display: block;
+  height: auto;
+  width: 100%;
 }
 
 .app-duo {
@@ -1077,16 +1099,6 @@ a {
   stroke-linejoin: round;
   stroke-width: 1.7;
   width: 19px;
-}
-
-.device-glow {
-  background: var(--lime);
-  border-radius: 50%;
-  filter: blur(110px);
-  height: 70%;
-  opacity: .15;
-  position: absolute;
-  width: 80%;
 }
 
 .pro-note {

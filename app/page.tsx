@@ -168,9 +168,9 @@ function Reveal({
   );
 }
 
-// drifts the section's background grid away from the cursor (inverse parallax),
+// drifts the section's background art away from the cursor (inverse parallax),
 // writing CSS vars directly so mouse moves never re-render the page
-function useGridParallax() {
+function useMouseDrift() {
   const ref = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -187,8 +187,8 @@ function useGridParallax() {
     const tick = () => {
       x += (targetX - x) * 0.07;
       y += (targetY - y) * 0.07;
-      el.style.setProperty("--grid-x", `${x.toFixed(2)}px`);
-      el.style.setProperty("--grid-y", `${y.toFixed(2)}px`);
+      el.style.setProperty("--drift-x", `${x.toFixed(2)}px`);
+      el.style.setProperty("--drift-y", `${y.toFixed(2)}px`);
       if (Math.abs(targetX - x) < 0.05 && Math.abs(targetY - y) < 0.05) {
         raf = 0;
         return;
@@ -201,8 +201,8 @@ function useGridParallax() {
 
     const onMove = (event: PointerEvent) => {
       const rect = el.getBoundingClientRect();
-      targetX = -((event.clientX - rect.left) / rect.width - 0.5) * 52;
-      targetY = -((event.clientY - rect.top) / rect.height - 0.5) * 36;
+      targetX = -((event.clientX - rect.left) / rect.width - 0.5) * 80;
+      targetY = -((event.clientY - rect.top) / rect.height - 0.5) * 56;
       kick();
     };
     const onLeave = () => {
@@ -481,7 +481,6 @@ function AppPhone() {
 
   return (
     <div className="tour-device" ref={stageRef}>
-      <div className="device-glow" aria-hidden="true" />
       <div className="phone-frame">
         <div className="phone-hardware" aria-hidden="true">
           <span />
@@ -679,7 +678,7 @@ export default function Home() {
   const heroScale = useTransform(smoothProgress, [0, 1], [1, 1.12]);
   const heroOpacity = useTransform(smoothProgress, [0, 0.85], [1, 0.35]);
   const heroY = useTransform(smoothProgress, [0, 1], [0, 110]);
-  const gridRef = useGridParallax();
+  const driftRef = useMouseDrift();
 
   useEffect(() => {
     captureUtm();
@@ -711,17 +710,18 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.25, ease }}
             >
-              You feel every strike.
+              See what
               <br />
-              <em>Now you&apos;ll see it.</em>
+              <em>your racket knows.</em>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.45, ease }}
             >
-              The wearable that measures how you actually play. Tennis, padel
-              and pickleball.
+              Every strike sends information through the handle. Aurevo
+              captures it, helping you understand your swings, impacts and
+              progress over time.
             </motion.p>
             <motion.a
               className="primary-cta"
@@ -746,15 +746,15 @@ export default function Home() {
           <Reveal className="manifesto-inner">
             <span className="section-number">01 / THE PROBLEM</span>
             <h2>
-              Racket sports have always been measured by the outcome.
+              Per strike performance is unmeasured, we are changing that.
               <br />
-              <span>Not the performance.</span>
+              <span>Measure the shot. Not the arm.</span>
             </h2>
             <p>
-              Each strike sends a vibration through the handle, carrying
-              details you can feel but never see. Until now, that signal has
-              vanished after every rally, with wearables treating a two-hour
-              match like a jog.
+              You can feel a clean hit the moment it lands, yet nothing
+              records it. That detail has vanished after every rally, with
+              existing wearable offerings treating a two-hour match like a
+              jog. Until now.
             </p>
           </Reveal>
           <div className="signal-line" aria-hidden="true">
@@ -835,7 +835,33 @@ export default function Home() {
           </Reveal>
         </section>
 
-        <section className="app-overview section-pad" id="app" ref={gridRef}>
+        <section className="app-overview section-pad" id="app" ref={driftRef}>
+          {/* aerial court linework, shot placements marked in the service box */}
+          <div className="court-sketch" aria-hidden="true">
+            <svg viewBox="0 0 780 360" fill="none">
+              <rect
+                x="1" y="1" width="778" height="358"
+                stroke="rgba(255,255,255,0.07)" vectorEffect="non-scaling-stroke"
+              />
+              <path
+                d="M1 45h778M1 315h778M180 45v270M600 45v270M180 180h420"
+                stroke="rgba(255,255,255,0.07)" vectorEffect="non-scaling-stroke"
+              />
+              <path
+                d="M390 1v358"
+                stroke="rgba(255,255,255,0.12)" vectorEffect="non-scaling-stroke"
+              />
+              <path
+                d="M1 180h13M766 180h13"
+                stroke="rgba(255,255,255,0.12)" vectorEffect="non-scaling-stroke"
+              />
+              <circle cx="470" cy="120" r="6" fill="rgba(202,255,56,0.2)" />
+              <circle cx="506" cy="94" r="5" fill="rgba(202,255,56,0.16)" />
+              <circle cx="536" cy="141" r="7" fill="rgba(202,255,56,0.3)" />
+              <circle cx="489" cy="152" r="4.5" fill="rgba(202,255,56,0.14)" />
+              <circle cx="648" cy="228" r="5" fill="rgba(202,255,56,0.12)" />
+            </svg>
+          </div>
           <div className="app-duo">
             <div className="app-copy">
               <Reveal>
