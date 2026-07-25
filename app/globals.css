@@ -404,6 +404,7 @@ a {
 .manifesto h2,
 .dual-mode h2,
 .measurement h2,
+.loop h2,
 .app-overview h2,
 .final-cta h2 {
   font-size: clamp(44px, 4.8vw, 76px);
@@ -471,6 +472,26 @@ a {
 
 @keyframes signal {
   50% { background: var(--lime); box-shadow: 0 0 0 14px rgba(202, 255, 56, 0.18); }
+}
+
+/* on desktop the problem reads as a slim banner, not a full-height section */
+@media (min-width: 981px) {
+  .manifesto {
+    padding: 54px var(--gutter) 112px;
+  }
+
+  .manifesto h2 {
+    font-size: clamp(34px, 3.2vw, 52px);
+  }
+
+  .manifesto-inner {
+    gap: 26px 6vw;
+  }
+
+  .signal-line {
+    bottom: 24px;
+    height: 72px;
+  }
 }
 
 .dual-mode {
@@ -886,6 +907,97 @@ a {
   .heat-cue .hint-drag {
     animation: none;
   }
+}
+
+/* 04: the improvement loop, data -> diagnosis -> fix */
+.loop {
+  background: var(--paper);
+}
+
+.loop h2 {
+  margin-top: 20px;
+}
+
+.loop h2 span {
+  color: #8c8a84;
+}
+
+.loop-head > p {
+  font-size: 16px;
+  line-height: 1.6;
+  margin: 20px 0 0;
+  max-width: 560px;
+}
+
+.loop-grid {
+  align-items: stretch;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  margin-top: 58px;
+}
+
+.loop-arrow {
+  align-self: center;
+  color: rgba(13, 13, 13, 0.45);
+  display: flex;
+}
+
+.loop-step {
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(13, 13, 13, 0.22);
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 24px 20px;
+}
+
+.loop-index {
+  color: #8c8a84;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+}
+
+.loop-step h3 {
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  margin: 12px 0 10px;
+}
+
+/* copy pushes the chip to the card's floor so all three chips align */
+.loop-step > p {
+  color: rgba(13, 13, 13, 0.72);
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0 0 auto;
+  padding-bottom: 24px;
+}
+
+/* dark rounded readout: an excerpt of what the app would say */
+.loop-chip {
+  background: var(--ink);
+  border-radius: 16px;
+  color: white;
+  padding: 14px 16px 15px;
+}
+
+.loop-chip span {
+  color: var(--lime);
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  margin-bottom: 7px;
+  text-transform: uppercase;
+}
+
+.loop-chip p {
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13.5px;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .phone-frame {
@@ -1355,6 +1467,26 @@ footer {
     max-width: 680px;
   }
 
+  /* stack the loop; arrows turn to point down the column */
+  .loop-grid {
+    gap: 14px;
+    grid-template-columns: 1fr;
+    margin-top: 44px;
+  }
+
+  .loop-arrow {
+    justify-content: center;
+    padding: 2px 0;
+  }
+
+  .loop-arrow .icon {
+    transform: rotate(90deg);
+  }
+
+  .loop-head > p {
+    max-width: 680px;
+  }
+
   .app-duo {
     gap: 55px;
     grid-template-columns: 1fr;
@@ -1437,6 +1569,7 @@ footer {
   .manifesto h2,
   .dual-mode h2,
   .measurement h2,
+  .loop h2,
   .app-overview h2,
   .final-cta h2 {
     font-size: clamp(38px, 13.5vw, 50px);
@@ -1545,6 +1678,18 @@ footer {
   .wing-row {
     font-size: 16px;
     gap: 20px;
+  }
+
+  .loop-head > p {
+    font-size: 15px;
+  }
+
+  .loop-step {
+    padding: 20px 18px 16px;
+  }
+
+  .loop-step h3 {
+    font-size: 22px;
   }
 
   .app-duo {

@@ -9,7 +9,7 @@ import {
   useTransform,
 } from "framer-motion";
 import Image from "next/image";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 
 import podPadel from "./images/pod-padel.webp";
 import podPickleball from "./images/pod-pickleball.webp";
@@ -69,6 +69,29 @@ const metrics = [
   { label: "Contact", value: "94", unit: "/100", delta: "+8%" },
   { label: "Power", value: "112", unit: "km/h", delta: "+6%" },
   { label: "Control", value: "87", unit: "%", delta: "+12%" },
+];
+
+// section 04: one number followed through the improvement loop,
+// so the example stays consistent with the BH 67% shown on the heatmap card
+const loopSteps = [
+  {
+    title: "The data",
+    copy: "Every shot is measured straight from the handle: contact quality, power, spin and where the ball struck.",
+    chipLabel: "From your racket",
+    chip: "Backhand control: 67%. Forehand: 81%.",
+  },
+  {
+    title: "The diagnosis",
+    copy: "The app reads the pattern behind the number and names what's actually holding you back in games.",
+    chipLabel: "What's holding you back",
+    chip: "Backhand contact is consistently late when you're under time pressure.",
+  },
+  {
+    title: "The fix",
+    copy: "Every diagnosis ends in a specific drill or cue, with coaching videos matched to it in the app.",
+    chipLabel: "Your next session",
+    chip: "Drill: cross-court backhands, stepping the front foot into the ball.",
+  },
 ];
 
 // how long each phone screen stays up; also drives the tab fill-up indicator
@@ -835,6 +858,43 @@ export default function Home() {
           </Reveal>
         </section>
 
+        <section className="loop section-pad" id="progress">
+          <Reveal className="loop-head">
+            <span className="section-number">04 / DATA INTO PROGRESS</span>
+            <h2>
+              How Aurevo turns data
+              <br />
+              <span>into a better game.</span>
+            </h2>
+            <p>
+              Aurevo attaches to your racket to measure your game, pinpoint
+              what&apos;s holding it back, and show you how to fix it.
+              Here&apos;s how one number from a session becomes the plan for
+              your next one.
+            </p>
+          </Reveal>
+          <div className="loop-grid">
+            {loopSteps.map((step, index) => (
+              <Fragment key={step.title}>
+                {index > 0 && (
+                  <Reveal className="loop-arrow" delay={index * 0.09 - 0.04}>
+                    <Arrow />
+                  </Reveal>
+                )}
+                <Reveal className="loop-step" delay={index * 0.09}>
+                  <span className="loop-index">{`0${index + 1}`}</span>
+                  <h3>{step.title}</h3>
+                  <p>{step.copy}</p>
+                  <div className="loop-chip">
+                    <span>{step.chipLabel}</span>
+                    <p>{step.chip}</p>
+                  </div>
+                </Reveal>
+              </Fragment>
+            ))}
+          </div>
+        </section>
+
         <section className="app-overview section-pad" id="app" ref={driftRef}>
           {/* aerial court linework, shot placements marked in the service box */}
           <div className="court-sketch" aria-hidden="true">
@@ -865,7 +925,7 @@ export default function Home() {
           <div className="app-duo">
             <div className="app-copy">
               <Reveal>
-                <span className="section-number light">04 / MEASURED COMPETITION</span>
+                <span className="section-number light">05 / MEASURED COMPETITION</span>
                 <h2>
                   Not just who won.
                   <br />
