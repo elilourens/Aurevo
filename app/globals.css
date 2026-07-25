@@ -95,7 +95,6 @@ a {
 .nav-island {
   align-items: center;
   border: 1px solid transparent;
-  border-radius: 999px;
   display: inline-flex;
   height: 54px;
   transition:
@@ -188,7 +187,6 @@ a {
 .nav-cta {
   align-items: center;
   background: var(--lime);
-  border-radius: 100px;
   color: var(--ink);
   display: inline-flex;
   font-size: 11px;
@@ -314,7 +312,6 @@ a {
 .primary-cta {
   align-items: center;
   background: var(--lime);
-  border-radius: 100px;
   color: var(--ink);
   display: inline-flex;
   font-size: 12px;
@@ -582,7 +579,6 @@ a {
   backdrop-filter: blur(6px);
   background: rgba(10, 10, 10, 0.55);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
   color: rgba(255, 255, 255, 0.85);
   font-size: 9px;
   font-weight: 700;
@@ -608,7 +604,6 @@ a {
   backdrop-filter: blur(6px);
   background: rgba(10, 10, 10, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 999px;
   color: rgba(255, 255, 255, 0.75);
   cursor: pointer;
   flex: 1;
@@ -707,7 +702,6 @@ a {
 .sweet-card {
   background: #0d0e0d;
   border: 1px solid #242624;
-  border-radius: 24px;
   box-shadow: 0 50px 80px rgba(54, 83, 4, 0.25);
   color: white;
   padding: 28px 30px 22px;
@@ -845,7 +839,6 @@ a {
   -webkit-backdrop-filter: blur(6px);
   background: rgba(9, 11, 9, 0.74);
   border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 999px;
   color: #ecefe9;
   display: flex;
   font-size: 10px;
@@ -946,7 +939,6 @@ a {
 .loop-step {
   background: rgba(255, 255, 255, 0.55);
   border: 1px solid rgba(13, 13, 13, 0.22);
-  border-radius: 22px;
   display: flex;
   flex-direction: column;
   padding: 24px 24px 20px;
@@ -978,7 +970,6 @@ a {
 /* dark rounded readout: an excerpt of what the app would say */
 .loop-chip {
   background: var(--ink);
-  border-radius: 16px;
   color: white;
   padding: 14px 16px 15px;
 }
@@ -1271,7 +1262,6 @@ a {
 .waitlist-email {
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.3);
-  border-radius: 100px;
   color: white;
   font-size: 16px;
   min-height: 64px;
@@ -1288,7 +1278,6 @@ a {
 .waitlist-form textarea {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 22px;
   color: white;
   font-size: 14px;
   outline: 0;
@@ -1310,7 +1299,6 @@ a {
   align-items: center;
   background: var(--lime);
   border: 0;
-  border-radius: 100px;
   box-shadow: 0 0 42px rgba(202, 255, 56, 0.22);
   color: var(--ink);
   cursor: pointer;
@@ -1334,7 +1322,6 @@ a {
 .success-message {
   background: rgba(202, 255, 56, 0.1);
   border: 1px solid var(--lime);
-  border-radius: 100px;
   color: white;
   font-size: 14px;
   font-weight: 700;
