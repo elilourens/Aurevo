@@ -11,6 +11,7 @@ import {
 import Image from "next/image";
 import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 
+import podBand from "./images/pod-band.webp";
 import podPadel from "./images/pod-padel.webp";
 import podPickleball from "./images/pod-pickleball.webp";
 import podTennis from "./images/pod-tennis.webp";
@@ -62,6 +63,11 @@ const podShots = [
     src: podPickleball,
     sport: "Pickleball",
     alt: "Aurevo pod clipped to the handle of a pickleball paddle held above the net",
+  },
+  {
+    src: podBand,
+    sport: "Wrist",
+    alt: "Aurevo pod seated in its black woven wrist band with reflective stitching",
   },
 ];
 
