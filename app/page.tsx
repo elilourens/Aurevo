@@ -11,6 +11,11 @@ import {
 import Image from "next/image";
 import { FormEvent, Fragment, useEffect, useRef, useState } from "react";
 
+import appClub from "./images/app/club.webp";
+import appHome from "./images/app/home.webp";
+import appOffCourt from "./images/app/offcourt.webp";
+import appProgress from "./images/app/progress.webp";
+import appSession from "./images/app/session.webp";
 import podBand from "./images/pod-band.webp";
 import podPadel from "./images/pod-padel.webp";
 import podPickleball from "./images/pod-pickleball.webp";
@@ -103,19 +108,32 @@ const loopSteps = [
 // how long each phone screen stays up; also drives the tab fill-up indicator
 const TOUR_INTERVAL = 3800;
 
-// live HTML mockups shown inside the phone; width = each file's rendered content width
+// screenshots of the real app (racketsense, web build at phone size)
 const appViews = [
   {
-    file: "/app-ui/progress.html",
-    width: 336,
-    label: "Progress",
-    title: "Aurevo progress screen",
+    src: appHome,
+    label: "Home",
+    alt: "Aurevo home screen: a 143 km/h top serve on a gauge from amateur to Alcaraz, with power, technique and endurance below",
   },
   {
-    file: "/app-ui/club.html",
-    width: 410,
+    src: appSession,
+    label: "Session",
+    alt: "Aurevo tennis session: a 122 km/h top serve, 540 shots and 48 minutes on court, with a session score of 74",
+  },
+  {
+    src: appProgress,
+    label: "Progress",
+    alt: "Aurevo progress screen: twelve weeks of sessions as a grid, with sessions, time on court and shots rising",
+  },
+  {
+    src: appOffCourt,
+    label: "Off court",
+    alt: "Aurevo off-court screen: steps, sleep, time on your feet and calories for the day",
+  },
+  {
+    src: appClub,
     label: "Club",
-    title: "Aurevo club screen",
+    alt: "Aurevo club screen: upcoming games against friends and open games matched to your level",
   },
 ];
 
@@ -133,15 +151,17 @@ const seedImpacts = [
 const SWEET_CENTER = { x: 50, y: 47 };
 const SWEET_RADIUS = 16;
 
-// thermal colormap stops: [t, r, g, b, alpha]
+// colormap stops in the app's palette, cool to hot: court blue at the
+// fringe, sage, bone, then brass where the strikes are densest
+// [t, r, g, b, alpha]
 const heatStops: Array<[number, number, number, number, number]> = [
-  [0.0, 40, 90, 200, 0],
-  [0.18, 45, 100, 210, 95],
-  [0.35, 60, 175, 145, 150],
-  [0.52, 140, 205, 70, 190],
-  [0.68, 235, 220, 70, 220],
-  [0.84, 245, 150, 45, 240],
-  [1.0, 232, 58, 30, 255],
+  [0.0, 47, 93, 158, 0],
+  [0.18, 47, 93, 158, 90],
+  [0.36, 91, 138, 209, 140],
+  [0.52, 147, 162, 121, 185],
+  [0.7, 220, 224, 210, 215],
+  [0.86, 246, 241, 232, 235],
+  [1.0, 201, 162, 39, 255],
 ];
 
 const heatLut = (() => {
@@ -448,43 +468,18 @@ function PodVisual() {
   );
 }
 
-function TabIcon({ view }: { view: string }) {
-  return view === "Progress" ? (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="tab-icon">
-      <path d="M4 19h16M5 15l4-5 3.4 3L19 6" />
-    </svg>
-  ) : (
-    <svg aria-hidden="true" viewBox="0 0 24 24" className="tab-icon">
-      <path d="M8 4h8v3a4 4 0 0 1-8 0V4Z" />
-      <path d="M8 5H5.5a0 0 0 0 0 0 0c0 2.4 1 4 2.9 4M16 5h2.5c0 2.4-1 4-2.9 4M12 11v4m-3 5h6m-3-5v5" />
-    </svg>
-  );
-}
-
 function AppPhone() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  // per-view visit counters key the iframes, so activating a view remounts it
-  // and replays the mockup's built-in intro (bars fill, numbers count up)
-  const [visits, setVisits] = useState(() => appViews.map(() => 0));
-  const [screenWidth, setScreenWidth] = useState(324);
+  // bumped on every swap so the active tab's fill bar restarts from empty
+  const [visit, setVisit] = useState(0);
   const stageRef = useRef<HTMLDivElement>(null);
-  const screenRef = useRef<HTMLDivElement>(null);
-  const startedRef = useRef(false);
   const inView = useInView(stageRef, { margin: "-25% 0px" });
 
   function show(index: number) {
     setActive(index);
-    setVisits((prev) => prev.map((v, i) => (i === index ? v + 1 : v)));
+    setVisit((v) => v + 1);
   }
-
-  // replay the first view's intro when the phone first scrolls into view
-  useEffect(() => {
-    if (inView && !startedRef.current) {
-      startedRef.current = true;
-      show(0);
-    }
-  }, [inView]);
 
   useEffect(() => {
     if (!inView || paused) return;
@@ -497,17 +492,6 @@ function AppPhone() {
 
   const autoplaying = inView && !paused;
 
-  // the mockups are fixed-width pages; scale each iframe to the phone screen
-  useEffect(() => {
-    const el = screenRef.current;
-    if (!el) return;
-    const measure = () => setScreenWidth(el.clientWidth);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="tour-device" ref={stageRef}>
       <div className="device-glow" aria-hidden="true" />
@@ -515,64 +499,52 @@ function AppPhone() {
         <div className="phone-hardware" aria-hidden="true">
           <span />
         </div>
-        <div className="phone-screen" ref={screenRef}>
+        <div className="phone-screen">
           {appViews.map((view, index) => (
             <motion.div
-              key={view.file}
+              key={view.label}
               className="tour-screen"
               initial={false}
               animate={{ opacity: index === active ? 1 : 0 }}
               transition={{ duration: 0.55, ease }}
+              aria-hidden={index !== active}
             >
-              <iframe
-                key={`${view.file}#${visits[index]}`}
-                src={view.file}
-                title={view.title}
-                className="tour-iframe"
-                style={{
-                  width: view.width,
-                  height: (view.width * 852) / 393,
-                  transform: `scale(${screenWidth / view.width})`,
-                }}
+              <Image
+                src={view.src}
+                alt={view.alt}
+                className="tour-shot"
+                sizes="(max-width: 640px) 86vw, 340px"
+                placeholder="blur"
+                priority={index === 0}
               />
             </motion.div>
           ))}
-          <div className="phone-tabbar" role="tablist" aria-label="App views">
-            {appViews.map((view, index) => (
-              <button
-                key={view.label}
-                type="button"
-                role="tab"
-                aria-selected={index === active}
-                className={index === active ? "phone-tab is-active" : "phone-tab"}
-                onClick={() => {
-                  show(index);
-                  setPaused(true);
-                }}
-              >
-                <span className="tab-content">
-                  <TabIcon view={view.label} />
-                  <span>{view.label}</span>
-                </span>
-                {index === active && (
-                  <span
-                    key={`${visits[index]}-${autoplaying}`}
-                    aria-hidden="true"
-                    className={
-                      autoplaying
-                        ? "tab-content tab-fill is-filling"
-                        : "tab-content tab-fill"
-                    }
-                    style={{ animationDuration: `${TOUR_INTERVAL}ms` }}
-                  >
-                    <TabIcon view={view.label} />
-                    <span>{view.label}</span>
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
         </div>
+      </div>
+      <div className="tour-tabs" role="tablist" aria-label="App views">
+        {appViews.map((view, index) => (
+          <button
+            key={view.label}
+            type="button"
+            role="tab"
+            aria-selected={index === active}
+            className={index === active ? "tour-tab is-active" : "tour-tab"}
+            onClick={() => {
+              show(index);
+              setPaused(true);
+            }}
+          >
+            {view.label}
+            {index === active && (
+              <span
+                key={`${visit}-${autoplaying}`}
+                aria-hidden="true"
+                className={autoplaying ? "tab-fill is-filling" : "tab-fill"}
+                style={{ animationDuration: `${TOUR_INTERVAL}ms` }}
+              />
+            )}
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -740,7 +712,7 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.25, ease }}
             >
-              You feel every strike.
+              <span>You feel every strike.</span>
               <br />
               <em>Now you&apos;ll see it.</em>
             </motion.h1>
@@ -891,7 +863,7 @@ export default function Home() {
                   <span className="loop-index">{`0${index + 1}`}</span>
                   <h3>{step.title}</h3>
                   <p>{step.copy}</p>
-                  <div className="loop-chip">
+                  <div className={index === 1 ? "loop-chip is-gap" : "loop-chip"}>
                     <span>{step.chipLabel}</span>
                     <p>{step.chip}</p>
                   </div>

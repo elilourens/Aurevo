@@ -1,10 +1,29 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #0d0d0d;
-  --paper: #f3f1ea;
-  --lime: #caff38;
-  --line: rgba(13, 13, 13, 0.16);
+  /* the app's brand system (racketsense src/theme/aurevo.ts): ink is the
+     ground, bone the type, clay the one action per view; olive is the
+     measurement sheet, sage marks a rise, brass marks what was earned */
+  --ink: #241e1a;
+  --ink-top: #2b2521;
+  --ink-deep: #14100d;
+  --ink-raised: #1b1613;
+  --bone: #f6f1e8;
+  --paper: var(--bone);
+  --olive: #5f6b4f;
+  --olive-lift: #6a7659;
+  --olive-deep: #4c5641;
+  --on-olive: #dce0d2;
+  --on-ink: #b9ada2;
+  --on-ink-faint: #968a81;
+  --clay: #b24a26;
+  --clay-lift: #d9622f;
+  --sage: #93a279;
+  --brass: #c9a227;
+  --line: rgba(36, 30, 26, 0.16);
+  --ground: linear-gradient(180deg, var(--ink-top) 0%, var(--ink) 38%, var(--ink-deep) 100%);
+  --serif: var(--font-serif), Georgia, "Times New Roman", serif;
+  --sans: var(--font-sans), Arial, Helvetica, sans-serif;
   /* shared page gutter: narrows content and caps it at ~1240px on wide screens */
   --gutter: max(6vw, calc((100vw - 1240px) / 2), 26px);
 }
@@ -24,7 +43,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--sans);
   overflow-x: clip;
 }
 
@@ -45,8 +64,8 @@ a {
 }
 
 ::selection {
-  background: var(--lime);
-  color: var(--ink);
+  background: var(--clay-lift);
+  color: var(--bone);
 }
 
 .sr-only {
@@ -63,7 +82,7 @@ a {
 
 .nav {
   align-items: center;
-  color: white;
+  color: var(--bone);
   display: flex;
   justify-content: space-between;
   height: 78px;
@@ -106,10 +125,10 @@ a {
 .nav.is-scrolled .nav-island {
   backdrop-filter: blur(32px) saturate(150%);
   -webkit-backdrop-filter: blur(32px) saturate(150%);
-  background: rgba(8, 9, 8, 0.62);
-  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(20, 16, 13, 0.66);
+  border-color: rgba(246, 241, 232, 0.14);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 1px 0 rgba(246, 241, 232, 0.12),
     0 18px 40px rgba(0, 0, 0, 0.38);
 }
 
@@ -138,9 +157,9 @@ a {
   background: conic-gradient(
     from var(--beam-angle),
     transparent 0deg 300deg,
-    rgba(202, 255, 56, 0) 300deg,
-    rgba(202, 255, 56, 0.85) 352deg,
-    #f2ffcb 360deg
+    rgba(217, 98, 47, 0) 300deg,
+    rgba(217, 98, 47, 0.85) 352deg,
+    #f5c3a8 360deg
   );
   border-radius: inherit;
   content: "";
@@ -175,21 +194,23 @@ a {
   }
 }
 
+/* the app's mark: Instrument Serif caps, tracked 0.11em, no stop */
 .wordmark {
   align-items: center;
   display: inline-flex;
-  font-size: 16px;
-  font-weight: 800;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 400;
   gap: 9px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.11em;
   width: fit-content;
 }
 
 .nav-cta {
   align-items: center;
-  background: var(--lime);
+  background: var(--clay);
   border-radius: 100px;
-  color: var(--ink);
+  color: var(--bone);
   display: inline-flex;
   font-size: 11px;
   font-weight: 700;
@@ -205,14 +226,14 @@ a {
   transform: translateY(-1px);
 }
 
-/* past the hero the waitlist button breathes a soft lime glow */
+/* past the hero the waitlist button breathes a soft clay glow */
 .nav-cta.is-breathing {
   animation: ctaBreathe 4.5s ease-in-out infinite;
 }
 
 @keyframes ctaBreathe {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(202, 255, 56, 0); }
-  50% { box-shadow: 0 0 24px 5px rgba(202, 255, 56, 0.4); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(217, 98, 47, 0); }
+  50% { box-shadow: 0 0 24px 5px rgba(217, 98, 47, 0.4); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -242,7 +263,8 @@ a {
 
 .hero {
   align-items: center;
-  color: white;
+  background: var(--ink-deep);
+  color: var(--bone);
   display: flex;
   height: max(780px, 100svh);
   justify-content: center;
@@ -261,8 +283,10 @@ a {
 
 .hero-wash {
   background:
-    linear-gradient(180deg, rgba(0, 0, 0, 0.38) 0%, transparent 30%, transparent 62%, rgba(0, 0, 0, 0.62) 100%),
-    radial-gradient(circle at center, transparent 15%, rgba(0, 0, 0, 0.22) 100%);
+    linear-gradient(180deg, rgba(20, 16, 13, 0.42) 0%, transparent 30%, transparent 62%, rgba(20, 16, 13, 0.7) 100%),
+    /* a soft ink pool behind the copy so the hairline serif holds over bright court */
+    radial-gradient(ellipse 46% 34% at 50% 50%, rgba(20, 16, 13, 0.46), transparent 100%),
+    radial-gradient(circle at center, transparent 15%, rgba(20, 16, 13, 0.28) 100%);
   inset: 0;
   position: absolute;
 }
@@ -281,8 +305,8 @@ a {
 .section-number,
 .eyebrow {
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
+  font-weight: 600;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
@@ -291,17 +315,21 @@ a {
 }
 
 .hero h1 {
-  font-size: clamp(44px, 6.2vw, 96px);
-  font-weight: 500;
-  letter-spacing: -0.06em;
-  line-height: 0.92;
+  font-family: var(--serif);
+  font-size: clamp(50px, 7vw, 112px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.94;
   margin: 0;
 }
 
 .hero h1 em {
-  color: var(--lime);
-  font-family: Georgia, "Times New Roman", serif;
-  font-weight: 400;
+  color: var(--bone);
+  font-style: italic;
+}
+
+.hero h1 > span {
+  color: rgba(246, 241, 232, 0.84);
 }
 
 .hero-content > p {
@@ -313,12 +341,12 @@ a {
 
 .primary-cta {
   align-items: center;
-  background: var(--lime);
+  background: var(--clay);
   border-radius: 100px;
-  color: var(--ink);
+  color: var(--bone);
   display: inline-flex;
   font-size: 12px;
-  font-weight: 800;
+  font-weight: 700;
   gap: 20px;
   letter-spacing: 0.08em;
   padding: 16px 20px 16px 24px;
@@ -327,7 +355,7 @@ a {
 }
 
 .primary-cta:hover {
-  background: white;
+  background: var(--clay-lift);
   transform: translateY(-2px);
 }
 
@@ -336,7 +364,7 @@ a {
   bottom: 28px;
   display: flex;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   justify-content: flex-end;
   left: 3.25vw;
   letter-spacing: 0.14em;
@@ -397,8 +425,12 @@ a {
   padding-top: 17px;
 }
 
+.section-number {
+  color: rgba(36, 30, 26, 0.62);
+}
+
 .section-number.light {
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--on-ink-faint);
 }
 
 .manifesto h2,
@@ -407,15 +439,17 @@ a {
 .loop h2,
 .app-overview h2,
 .final-cta h2 {
-  font-size: clamp(44px, 4.8vw, 76px);
-  font-weight: 500;
-  letter-spacing: -0.065em;
-  line-height: 0.96;
+  font-family: var(--serif);
+  font-size: clamp(48px, 5.4vw, 86px);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 0.98;
   margin: 0;
 }
 
 .manifesto h2 span {
-  color: #8c8a84;
+  color: rgba(36, 30, 26, 0.46);
+  font-style: italic;
 }
 
 .manifesto p,
@@ -471,7 +505,7 @@ a {
 }
 
 @keyframes signal {
-  50% { background: var(--lime); box-shadow: 0 0 0 14px rgba(202, 255, 56, 0.18); }
+  50% { background: var(--clay-lift); box-shadow: 0 0 0 14px rgba(217, 98, 47, 0.18); }
 }
 
 /* on desktop the problem reads as a slim banner, not a full-height section */
@@ -481,7 +515,7 @@ a {
   }
 
   .manifesto h2 {
-    font-size: clamp(34px, 3.2vw, 52px);
+    font-size: clamp(38px, 3.6vw, 58px);
   }
 
   .manifesto-inner {
@@ -495,8 +529,8 @@ a {
 }
 
 .dual-mode {
-  background: var(--ink);
-  color: white;
+  background: var(--ground);
+  color: var(--bone);
   display: grid;
   grid-template-areas:
     "copy visual"
@@ -521,21 +555,21 @@ a {
 }
 
 .measurement h2 {
-  font-size: clamp(44px, 4.6vw, 74px);
+  font-size: clamp(48px, 5.2vw, 84px);
   margin: 22px 0 20px;
 }
 
 /* longer two-line headline: smaller than the other section titles */
 .dual-copy h2 {
-  font-size: clamp(32px, 3.4vw, 54px);
-  letter-spacing: -0.045em;
-  line-height: 1.04;
+  font-size: clamp(36px, 3.8vw, 60px);
+  letter-spacing: -0.01em;
+  line-height: 1.02;
   margin: 22px 0 24px;
 }
 
 .dual-copy h2 em {
-  color: var(--lime);
-  font-style: normal;
+  color: var(--on-ink);
+  font-style: italic;
 }
 
 .sport-list {
@@ -543,14 +577,14 @@ a {
   display: flex;
   flex-wrap: wrap;
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   gap: 19px;
   letter-spacing: 0.13em;
   margin-top: 30px;
 }
 
 .sport-list i {
-  background: var(--lime);
+  background: var(--sage);
   border-radius: 50%;
   height: 4px;
   width: 4px;
@@ -562,7 +596,8 @@ a {
 }
 
 .pod-stage {
-  background: #191919;
+  background: var(--ink-raised);
+  border-radius: 26px;
   height: 100%;
   min-height: 480px;
   overflow: hidden;
@@ -580,12 +615,12 @@ a {
 
 .pod-tag {
   backdrop-filter: blur(6px);
-  background: rgba(10, 10, 10, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(20, 16, 13, 0.6);
+  border: 1px solid rgba(246, 241, 232, 0.2);
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(246, 241, 232, 0.85);
   font-size: 9px;
-  font-weight: 700;
+  font-weight: 600;
   left: 22px;
   letter-spacing: 0.13em;
   padding: 9px 15px;
@@ -606,15 +641,15 @@ a {
 
 .pod-dot {
   backdrop-filter: blur(6px);
-  background: rgba(10, 10, 10, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(20, 16, 13, 0.55);
+  border: 1px solid rgba(246, 241, 232, 0.22);
   border-radius: 999px;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(246, 241, 232, 0.75);
   cursor: pointer;
   flex: 1;
   font-family: inherit;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   letter-spacing: 0.11em;
   padding: 11px 0;
   text-transform: uppercase;
@@ -622,18 +657,20 @@ a {
 }
 
 .pod-dot:hover {
-  border-color: rgba(255, 255, 255, 0.5);
-  color: white;
+  border-color: rgba(246, 241, 232, 0.5);
+  color: var(--bone);
 }
 
 .pod-dot.is-active {
-  background: var(--lime);
-  border-color: var(--lime);
-  color: #101010;
+  background: rgba(246, 241, 232, 0.92);
+  border-color: rgba(246, 241, 232, 0.92);
+  color: var(--ink);
 }
 
+/* olive survives as a surface in one place: the measurement sheet */
 .measurement {
-  background: #d9ff65;
+  background: linear-gradient(180deg, var(--olive-lift) 0%, var(--olive) 45%, var(--olive-deep) 100%);
+  color: var(--bone);
   display: grid;
   gap: 6vw;
   grid-template-columns: 0.92fr 1.08fr;
@@ -647,18 +684,23 @@ a {
 }
 
 .measurement-copy > div > p {
+  color: var(--on-olive);
   max-width: 500px;
 }
 
+.measurement .section-number {
+  color: var(--on-olive);
+}
+
 .metric-strip {
-  border-top: 1px solid rgba(13, 13, 13, 0.3);
+  border-top: 1px solid rgba(246, 241, 232, 0.24);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   margin-top: 90px;
 }
 
 .metric {
-  border-right: 1px solid rgba(13, 13, 13, 0.3);
+  border-right: 1px solid rgba(246, 241, 232, 0.24);
   padding: 20px 18px 8px 0;
   position: relative;
 }
@@ -672,30 +714,36 @@ a {
 }
 
 .metric span {
+  color: var(--on-olive);
   display: block;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   margin-bottom: 16px;
   text-transform: uppercase;
 }
 
 .metric strong {
-  font-size: 42px;
-  font-weight: 500;
-  letter-spacing: -0.05em;
+  font-family: var(--serif);
+  font-size: 56px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 0.9;
 }
 
 .metric small {
-  font-size: 10px;
+  color: var(--on-olive);
+  font-size: 11px;
   margin-left: 4px;
 }
 
 .metric i {
-  color: #257b32;
+  color: var(--bone);
   display: block;
-  font-size: 9px;
+  font-size: 10px;
   font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.08em;
   margin-top: 6px;
 }
 
@@ -704,29 +752,34 @@ a {
   display: flex;
 }
 
+/* the app's ink-glass tile: translucent ink, a bone rim, a specular top edge */
 .sweet-card {
-  background: #0d0e0d;
-  border: 1px solid #242624;
-  border-radius: 24px;
-  box-shadow: 0 50px 80px rgba(54, 83, 4, 0.25);
-  color: white;
+  backdrop-filter: blur(26px) saturate(150%);
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  background: linear-gradient(180deg, rgba(36, 30, 26, 0.86), rgba(27, 22, 19, 0.94));
+  border: 1px solid rgba(246, 241, 232, 0.14);
+  border-radius: 26px;
+  box-shadow:
+    inset 0 1px 0 rgba(246, 241, 232, 0.16),
+    0 40px 70px rgba(20, 16, 13, 0.45);
+  color: var(--bone);
   padding: 28px 30px 22px;
   width: 100%;
 }
 
 .sweet-head {
-  color: #8b8d8a;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
+  color: var(--on-ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .sweet-head em {
-  color: #565856;
+  color: var(--on-ink-faint);
   font-size: 13px;
   font-style: normal;
-  font-weight: 600;
+  font-weight: 400;
   letter-spacing: 0.04em;
   margin-left: 8px;
   text-transform: none;
@@ -742,8 +795,8 @@ a {
 
 .racket-oval {
   aspect-ratio: 0.72;
-  background: #101211;
-  border: 6px solid #4b4e4c;
+  background: var(--ink-raised);
+  border: 6px solid #4a413a;
   border-radius: 50%;
   cursor: crosshair;
   margin: 0 auto;
@@ -756,14 +809,14 @@ a {
 }
 
 .racket-oval:hover {
-  border-color: #5d615e;
-  box-shadow: 0 0 34px rgba(202, 255, 56, 0.16);
+  border-color: #5c524a;
+  box-shadow: 0 0 34px rgba(246, 241, 232, 0.1);
 }
 
 .racket-strings {
   background-image:
-    repeating-linear-gradient(90deg, transparent 0 14px, rgba(255,255,255,.15) 14px 15px),
-    repeating-linear-gradient(0deg, transparent 0 14px, rgba(255,255,255,.15) 14px 15px);
+    repeating-linear-gradient(90deg, transparent 0 14px, rgba(246, 241, 232,.15) 14px 15px),
+    repeating-linear-gradient(0deg, transparent 0 14px, rgba(246, 241, 232,.15) 14px 15px);
   inset: 1%;
   position: absolute;
 }
@@ -782,7 +835,7 @@ a {
 }
 
 .sweet-label {
-  color: #8b8d8a;
+  color: var(--on-ink);
   font-size: 14px;
 }
 
@@ -794,20 +847,22 @@ a {
 }
 
 .sweet-big strong {
-  font-size: 58px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  font-family: var(--serif);
+  font-size: 84px;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 0.85;
 }
 
 .sweet-big small {
-  color: #8b8d8a;
-  font-size: 17px;
-  font-weight: 700;
+  color: var(--on-ink);
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 400;
 }
 
 .sweet-big i {
-  color: var(--lime);
+  color: var(--sage);
   font-size: 15px;
   font-style: normal;
   font-weight: 700;
@@ -815,25 +870,33 @@ a {
 }
 
 .sweet-divider {
-  background: #242624;
+  background: rgba(246, 241, 232, 0.12);
   height: 1px;
   margin-bottom: 18px;
 }
 
 .wing-row {
+  color: var(--on-ink);
   display: flex;
   gap: 36px;
-  font-size: 21px;
-  font-weight: 800;
+  font-size: 15px;
+  font-weight: 600;
   margin-top: 8px;
 }
 
+.wing-row b {
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 400;
+  margin-left: 4px;
+}
+
 .wing-row .fh {
-  color: var(--lime);
+  color: var(--bone);
 }
 
 .wing-row .bh {
-  color: #5b8ad6;
+  color: var(--sage);
 }
 
 /* pulsing pill on the strings: the "this is interactive" cue,
@@ -843,13 +906,13 @@ a {
   animation: cuePulse 2.4s ease-in-out infinite;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  background: rgba(9, 11, 9, 0.74);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(20, 16, 13, 0.78);
+  border: 1px solid rgba(246, 241, 232, 0.18);
   border-radius: 999px;
-  color: #ecefe9;
+  color: var(--bone);
   display: flex;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 600;
   gap: 9px;
   left: 50%;
   letter-spacing: 0.09em;
@@ -873,8 +936,8 @@ a {
 }
 
 @keyframes cuePulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(202, 255, 56, 0); }
-  50% { box-shadow: 0 0 20px 3px rgba(202, 255, 56, 0.3); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(246, 241, 232, 0); }
+  50% { box-shadow: 0 0 20px 3px rgba(246, 241, 232, 0.22); }
 }
 
 .hint-drag {
@@ -919,7 +982,8 @@ a {
 }
 
 .loop h2 span {
-  color: #8c8a84;
+  color: rgba(36, 30, 26, 0.46);
+  font-style: italic;
 }
 
 .loop-head > p {
@@ -939,36 +1003,37 @@ a {
 
 .loop-arrow {
   align-self: center;
-  color: rgba(13, 13, 13, 0.45);
+  color: rgba(36, 30, 26, 0.45);
   display: flex;
 }
 
 .loop-step {
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(13, 13, 13, 0.22);
-  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(36, 30, 26, 0.16);
+  border-radius: 26px;
   display: flex;
   flex-direction: column;
   padding: 24px 24px 20px;
 }
 
 .loop-index {
-  color: #8c8a84;
+  color: rgba(36, 30, 26, 0.55);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.16em;
 }
 
 .loop-step h3 {
-  font-size: 26px;
-  font-weight: 500;
-  letter-spacing: -0.03em;
+  font-family: var(--serif);
+  font-size: 34px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   margin: 12px 0 10px;
 }
 
 /* copy pushes the chip to the card's floor so all three chips align */
 .loop-step > p {
-  color: rgba(13, 13, 13, 0.72);
+  color: rgba(36, 30, 26, 0.72);
   font-size: 14.5px;
   line-height: 1.6;
   margin: 0 0 auto;
@@ -977,36 +1042,41 @@ a {
 
 /* dark rounded readout: an excerpt of what the app would say */
 .loop-chip {
-  background: var(--ink);
-  border-radius: 16px;
-  color: white;
+  background: linear-gradient(180deg, var(--ink-top), var(--ink-raised));
+  border-radius: 14px;
+  color: var(--bone);
   padding: 14px 16px 15px;
 }
 
 .loop-chip span {
-  color: var(--lime);
+  color: var(--sage);
   display: block;
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.14em;
   margin-bottom: 7px;
   text-transform: uppercase;
 }
 
+/* the diagnosis is where it is going wrong: clay, as in the app */
+.loop-chip.is-gap span {
+  color: var(--clay-lift);
+}
+
 .loop-chip p {
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(246, 241, 232, 0.88);
   font-size: 13.5px;
   line-height: 1.5;
   margin: 0;
 }
 
 .phone-frame {
-  background: linear-gradient(145deg, #2b2e2c, #050605 48%, #252925);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: linear-gradient(145deg, #3a332d, #0c0a08 48%, #2e2823);
+  border: 1px solid rgba(246, 241, 232, 0.16);
   border-radius: 48px;
   box-shadow:
     0 55px 100px rgba(0, 0, 0, 0.5),
-    inset 0 1px 1px rgba(255, 255, 255, 0.18);
+    inset 0 1px 1px rgba(246, 241, 232, 0.18);
   margin: 0 auto;
   padding: 8px;
   position: relative;
@@ -1014,30 +1084,30 @@ a {
   z-index: 2;
 }
 
+/* the dynamic island, sat in the screenshots' status bar */
 .phone-hardware {
   height: 0;
   left: 50%;
   position: absolute;
-  top: 17px;
+  top: 18px;
   transform: translateX(-50%);
   width: 29%;
   z-index: 3;
 }
 
 .phone-hardware span {
-  background: #080908;
+  background: #000;
   border-radius: 99px;
   display: block;
-  height: 5px;
+  height: 21px;
   margin: auto;
-  opacity: 0.82;
-  width: 42%;
+  width: 100%;
 }
 
 .phone-screen {
   /* real handset proportions (19.5:9); taller screenshots get cropped */
   aspect-ratio: 393 / 852;
-  background: #080a08;
+  background: var(--ink-top);
   border-radius: 40px;
   overflow: hidden;
   position: relative;
@@ -1045,13 +1115,13 @@ a {
 
 .app-overview {
   background:
-    linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px),
-    linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
-    #101210;
+    linear-gradient(90deg, rgba(246, 241, 232,.035) 1px, transparent 1px),
+    linear-gradient(rgba(246, 241, 232,.035) 1px, transparent 1px),
+    var(--ink-deep);
   /* the grid drifts against the cursor; vars come from useGridParallax */
   background-position: var(--grid-x, 0px) var(--grid-y, 0px);
   background-size: 80px 80px;
-  color: white;
+  color: var(--bone);
   overflow: clip;
 }
 
@@ -1062,17 +1132,22 @@ a {
   grid-template-columns: 1fr 0.9fr;
 }
 
+.app-duo > * {
+  min-width: 0;
+}
+
 .app-overview h2 {
-  font-size: clamp(44px, 4.6vw, 74px);
+  font-size: clamp(48px, 5.2vw, 84px);
   margin: 22px 0 20px;
 }
 
 .app-overview h2 span {
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(246, 241, 232, 0.45);
+  font-style: italic;
 }
 
 .app-copy p {
-  color: rgba(255,255,255,.62);
+  color: var(--on-ink);
   font-size: 16px;
   line-height: 1.65;
   margin: 0;
@@ -1096,135 +1171,128 @@ a {
   position: absolute;
 }
 
-.tour-iframe {
-  background: #0c0d0c;
-  border: 0;
+.tour-shot {
   display: block;
-  /* the phone is a showcase, not a browsing surface */
-  pointer-events: none;
-  transform-origin: top left;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  width: 100%;
 }
 
-/* in-phone bottom tab bar; this is where the view titles live */
-.phone-tabbar {
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  background: rgba(7, 9, 7, 0.86);
-  border-top: 1px solid rgba(255, 255, 255, 0.09);
-  bottom: 0;
+/* the view switcher sits under the phone as the app's own glass chrome:
+   an opaque ink pane that reads as glass by its rim and specular edge */
+.tour-tabs {
+  background: var(--ink-deep);
+  border: 1px solid rgba(246, 241, 232, 0.16);
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 18px 40px rgba(0, 0, 0, 0.35);
   display: flex;
-  left: 0;
-  padding: 8px 10px 14px;
-  position: absolute;
-  right: 0;
-  z-index: 3;
+  gap: 2px;
+  margin-top: 28px;
+  padding: 5px;
+  position: relative;
+  z-index: 2;
 }
 
-.phone-tab {
-  align-items: center;
+.tour-tab {
   background: none;
   border: 0;
-  color: rgba(255, 255, 255, 0.42);
+  border-radius: 999px;
+  color: rgba(246, 241, 232, 0.62);
   cursor: pointer;
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 4px 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  overflow: hidden;
+  padding: 10px 14px;
   position: relative;
-  transition: color 250ms ease;
+  text-transform: uppercase;
+  transition: background 250ms ease, color 250ms ease;
+  white-space: nowrap;
 }
 
-.phone-tab.is-active {
-  color: rgba(255, 255, 255, 0.58);
+.tour-tab:hover {
+  color: var(--bone);
 }
 
-.tab-content {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.tour-tab.is-active {
+  background: rgba(246, 241, 232, 0.1);
+  color: var(--bone);
 }
 
-/* lime duplicate of the active tab that fills icon + text left to right,
-   timing out the moment the phone swaps to the next screen */
+/* a thin bone bar fills along the active tab, timing out the moment
+   the phone swaps to the next screen */
 .tab-fill {
-  color: var(--lime);
-  left: 50%;
+  background: rgba(246, 241, 232, 0.92);
+  bottom: 4px;
+  height: 2px;
+  left: 14px;
   position: absolute;
-  top: 4px;
-  transform: translateX(-50%);
+  right: 14px;
+  transform-origin: left;
 }
 
 .tab-fill.is-filling {
   animation-fill-mode: forwards;
   animation-name: tabFill;
   animation-timing-function: linear;
-  clip-path: inset(0 100% 0 0);
 }
 
 @keyframes tabFill {
   from {
-    clip-path: inset(0 100% 0 0);
+    transform: scaleX(0);
   }
   to {
-    clip-path: inset(0 0 0 0);
+    transform: scaleX(1);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tab-fill.is-filling {
     animation: none;
-    clip-path: none;
+    transform: scaleX(1);
   }
 }
 
-.tab-icon {
-  fill: none;
-  height: 19px;
-  stroke: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.7;
-  width: 19px;
-}
-
+/* the club colour as light falling on the ink, as on every app screen */
 .device-glow {
-  background: var(--lime);
+  background: var(--olive-lift);
   border-radius: 50%;
   filter: blur(110px);
   height: 70%;
-  opacity: .15;
+  opacity: .4;
   position: absolute;
   width: 80%;
 }
 
 .pro-note {
-  border-top: 1px solid rgba(255,255,255,.18);
+  border-top: 1px solid rgba(246, 241, 232,.18);
   margin-top: 100px;
   padding-top: 22px;
 }
 
 .pro-note span {
-  color: var(--lime);
+  color: var(--brass);
   font-size: 9px;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: .14em;
 }
 
 .pro-note p {
-  color: rgba(255,255,255,.55);
+  color: var(--on-ink);
   font-size: 14px;
   line-height: 1.6;
   max-width: 440px;
 }
 
-/* dark close, bookending the dark hero; lime carries the accents */
+/* dark close, bookending the dark hero; clay carries the one action */
 .final-cta {
-  background: var(--ink);
-  color: white;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(106, 118, 89, 0.28), transparent 70%),
+    var(--ground);
+  color: var(--bone);
   min-height: 850px;
   overflow: hidden;
   padding: 150px var(--gutter) 30px;
@@ -1240,12 +1308,12 @@ a {
 }
 
 .final-cta h2 {
-  font-size: clamp(56px, 6.8vw, 110px);
+  font-size: clamp(60px, 7.6vw, 124px);
   margin: 32px 0 27px;
 }
 
 .final-inner > p {
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--on-ink);
   font-size: 17px;
   line-height: 1.55;
   margin: auto;
@@ -1253,7 +1321,7 @@ a {
 }
 
 .perks-line {
-  color: var(--lime);
+  color: var(--brass) !important;
   font-size: 13px;
   letter-spacing: 0.02em;
   margin-top: 14px !important;
@@ -1269,10 +1337,10 @@ a {
 
 /* email first and most prominent */
 .waitlist-email {
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(246, 241, 232, 0.07);
+  border: 1px solid rgba(246, 241, 232, 0.3);
   border-radius: 100px;
-  color: white;
+  color: var(--bone);
   font-size: 16px;
   min-height: 64px;
   outline: 0;
@@ -1281,15 +1349,15 @@ a {
 }
 
 .waitlist-email:focus {
-  border-color: var(--lime);
-  box-shadow: 0 0 26px rgba(202, 255, 56, 0.18);
+  border-color: rgba(246, 241, 232, 0.7);
+  box-shadow: 0 0 26px rgba(246, 241, 232, 0.08);
 }
 
 .waitlist-form textarea {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(246, 241, 232, 0.04);
+  border: 1px solid rgba(246, 241, 232, 0.16);
   border-radius: 22px;
-  color: white;
+  color: var(--bone);
   font-size: 14px;
   outline: 0;
   padding: 16px 22px;
@@ -1298,25 +1366,25 @@ a {
 }
 
 .waitlist-form textarea:focus {
-  border-color: rgba(255, 255, 255, 0.4);
+  border-color: rgba(246, 241, 232, 0.4);
 }
 
 .waitlist-form textarea::placeholder,
 .waitlist-email::placeholder {
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(246, 241, 232, 0.38);
 }
 
 .waitlist-submit {
   align-items: center;
-  background: var(--lime);
+  background: var(--clay);
   border: 0;
   border-radius: 100px;
-  box-shadow: 0 0 42px rgba(202, 255, 56, 0.22);
-  color: var(--ink);
+  box-shadow: 0 0 42px rgba(217, 98, 47, 0.22);
+  color: var(--bone);
   cursor: pointer;
   display: flex;
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 700;
   gap: 16px;
   justify-content: center;
   letter-spacing: .09em;
@@ -1327,15 +1395,15 @@ a {
 }
 
 .waitlist-submit:hover {
-  background: white;
+  background: var(--clay-lift);
   transform: translateY(-1px);
 }
 
 .success-message {
-  background: rgba(202, 255, 56, 0.1);
-  border: 1px solid var(--lime);
+  background: rgba(147, 162, 121, 0.12);
+  border: 1px solid var(--sage);
   border-radius: 100px;
-  color: white;
+  color: var(--bone);
   font-size: 14px;
   font-weight: 700;
   margin: 0 auto;
@@ -1343,7 +1411,7 @@ a {
 }
 
 .court-lines {
-  border: 1px solid rgba(202, 255, 56, 0.14);
+  border: 1px solid rgba(246, 241, 232, 0.08);
   height: 620px;
   left: 50%;
   position: absolute;
@@ -1355,7 +1423,7 @@ a {
 
 .court-lines::before,
 .court-lines::after {
-  border: 1px solid rgba(202, 255, 56, 0.14);
+  border: 1px solid rgba(246, 241, 232, 0.08);
   content: "";
   position: absolute;
 }
@@ -1374,12 +1442,12 @@ a {
 
 footer {
   align-items: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  border-top: 1px solid rgba(246, 241, 232, 0.18);
   bottom: 30px;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--on-ink-faint);
   display: flex;
   font-size: 8px;
-  font-weight: 700;
+  font-weight: 600;
   justify-content: space-between;
   left: var(--gutter);
   letter-spacing: .11em;
@@ -1389,8 +1457,8 @@ footer {
 }
 
 .dark-wordmark {
-  color: white;
-  font-size: 13px;
+  color: var(--bone);
+  font-size: 16px;
 }
 
 @media (max-width: 980px) {
@@ -1477,7 +1545,7 @@ footer {
 
   .app-duo {
     gap: 55px;
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .app-copy p {
@@ -1530,7 +1598,7 @@ footer {
   }
 
   .hero h1 {
-    font-size: clamp(38px, 11vw, 52px);
+    font-size: clamp(44px, 12.5vw, 60px);
     line-height: .92;
   }
 
@@ -1560,7 +1628,7 @@ footer {
   .loop h2,
   .app-overview h2,
   .final-cta h2 {
-    font-size: clamp(38px, 13.5vw, 50px);
+    font-size: clamp(42px, 14vw, 56px);
   }
 
   .manifesto p,
@@ -1623,7 +1691,7 @@ footer {
   }
 
   .metric strong {
-    font-size: 30px;
+    font-size: 40px;
   }
 
   .sweet-card {
@@ -1660,11 +1728,11 @@ footer {
   }
 
   .sweet-big strong {
-    font-size: 40px;
+    font-size: 58px;
   }
 
   .wing-row {
-    font-size: 16px;
+    font-size: 13px;
     gap: 20px;
   }
 
@@ -1677,7 +1745,7 @@ footer {
   }
 
   .loop-step h3 {
-    font-size: 22px;
+    font-size: 28px;
   }
 
   .app-duo {
@@ -1697,6 +1765,24 @@ footer {
     border-radius: 34px;
   }
 
+  .tour-tabs {
+    gap: 0;
+    margin-top: 22px;
+    max-width: 100%;
+    padding: 4px;
+  }
+
+  .tour-tab {
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    padding: 9px 8px;
+  }
+
+  .tab-fill {
+    left: 8px;
+    right: 8px;
+  }
+
   .pro-note {
     margin-top: 70px;
   }
@@ -1707,7 +1793,7 @@ footer {
   }
 
   .final-cta h2 {
-    font-size: clamp(42px, 15.5vw, 58px);
+    font-size: clamp(46px, 16vw, 64px);
   }
 
   .waitlist-form {
